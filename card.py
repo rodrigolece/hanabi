@@ -5,3 +5,7 @@ class Card(object):
         self.number = number
 
         return None
+
+    def print_card(self):
+        print("A {} {}".format(self.colour, self.number))
+        return None

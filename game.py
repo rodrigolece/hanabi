@@ -59,6 +59,8 @@ class Hanabi(object):
         for i in range(nb_cards):
             card = self.stack.pop()
             player.hand.append(card)
+            player.hand_info["numbers"].append(None)
+            player.hand_info["colours"].append(None)
 
         return None
 
@@ -66,5 +68,67 @@ class Hanabi(object):
         self.round += 1
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
+        print("\nCurrent player is player {}".format(to_play))
+
+        return None
+
+    # redundancy in the functions below? being in game and player?
+
+    # should you have to specify which player does this? or should it always be "self.current player"
+    def pickup_card(self, player):
+        card = self.stack.pop()
+        player.pickup(card)
+
+        return None
+
+
+    def discard_card(self, player, card_num):
+        self.clues+=1
+        discarded = player.discard(card_num)
+        self.table.discarded_stack.append(discarded)
+        self.pickup_card(player)
+        return None
+
+
+    def play_card(self, player, card_num):
+        stack_name = f'{player.hand[card_num].colour}_stack'
+        stack = getattr(self.table, stack_name, None)
+        card = player.play(card_num)
+
+        if len(stack) > 0:  # the stack has cards
+            top_card = stack[-1]
+            if card.number == top_card.number + 1:
+                stack.append(card)
+            else:
+                print("life lost")
+                self.discard_card(player, card_num)
+                self.clues -=1 # this is so hacky. At the moment using the discard function adds a clue
+                self.lifes -=1
+                if self.lifes ==0:
+                    print(" YOU LOSE")
+                    exit()
+
+        else:
+            if card.number == 1:
+                stack.append(card)
+            else:
+                print("life lost")
+                self.discard_card(player, card_num)
+                self.clues -=1 # this is so hacky
+                self.lifes -=1
+                if self.lifes ==0:
+                    print(" YOU LOSE")
+                    exit()
+
+        self.pickup_card(player)
+
+        return None
+
+    def give_hint(self, to_player, card_num, info):
+        if info in ['red', 'blue', 'green', 'yellow', 'white']:
+            hint_type = 'colours'
+        elif info in [1,2,3,4,5]:
+            hint_type= 'numbers'
+        to_player.hand_info[hint_type][card_num]=info
 
         return None
