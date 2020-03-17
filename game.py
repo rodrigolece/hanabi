@@ -125,10 +125,13 @@ class Hanabi(object):
         return None
 
     def give_hint(self, to_player, card_num, info):
-        if info in ['red', 'blue', 'green', 'yellow', 'white']:
-            hint_type = 'colours'
-        elif info in [1,2,3,4,5]:
-            hint_type= 'numbers'
-        to_player.hand_info[hint_type][card_num]=info
-
+        if self.clues>0:
+            if info in ['red', 'blue', 'green', 'yellow', 'white']:
+                hint_type = 'colours'
+            elif info in [1,2,3,4,5]:
+                hint_type= 'numbers'
+            to_player.hand_info[hint_type][card_num]=info
+            self.clues-=1
+        else:
+            print("\n No hints to left to give. Discard or play")
         return None
