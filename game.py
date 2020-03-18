@@ -68,10 +68,6 @@ class Hanabi(object):
         for i in range(nb_cards):
             card = self.stack.pop()
             player.hand.append(card)
-            # I think we cannot assume the cards are ordered, instead we use
-            # card as a key in a dictionary
-            # player.hand_info["numbers"].append(None)
-            # player.hand_info["colours"].append(None)
             player.hand_colour_info[card] = None
             player.hand_number_info[card] = None
 
@@ -91,11 +87,11 @@ class Hanabi(object):
     # should you have to specify which player does this? or should it always be "self.current player"
     # Re: Good point, we could refactor so that this is current player
 
-    def player_played(self, player, action, **kwargs):
+    def player_played(self, action, **kwargs):
         assert action in ('play', 'discard', 'hint')
         # TOOD handle more gracefully than assert
 
-        method = getattr(player, action)
+        method = getattr(self.current_player, action)
         out = method(**kwargs)
 
         pass_hand = True
@@ -104,18 +100,18 @@ class Hanabi(object):
             card = out
             play_succesful = self.table.play_card(card)
             # the table will tell you if the play is succesful
-            self.deal_cards(player, 1)
+            self.deal_cards(self.current_player, 1)
 
             if play_succesful is False:
                 print("life lost")
                 self.lifes -= 1
-                self.table.discarded_stack.append(card)
+                self.table.discard_card(card)
 
         elif action == 'discard':
             card = out
-            self.table.discarded_stack.append(card)
+            self.table.discard_card(card)
             self.clues += 1
-            self.deal_cards(player, 1)
+            self.deal_cards(self.current_player, 1)
 
         elif action == 'hint':
             if self.clues < 1:

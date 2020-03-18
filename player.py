@@ -10,9 +10,9 @@ class Player(object):
         return None
 
     def __str__(self):
-        s = f'\nPlayer {self.index}'
+        s = f'\nPlayer {self.index}:'
         for c in self.hand:
-            s = s + f'\n {c.colour} {c.number}'
+            s = s + f'\n {c.colour} {c.number}, knows: {self.hand_colour_info[c]} {self.hand_number_info[c]}'
         return s
 
     def decide_action(self, action, **kwargs):
