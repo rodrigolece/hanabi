@@ -55,6 +55,15 @@ class Hanabi(object):
 
         return textwrap.dedent(s)
 
+    def check_endgame(self):
+        if self.lifes == 0:
+            print("YOU LOSE")
+            exit()
+        # Here we would add the other conditions like no more cards on stack
+        # and full round played
+
+        return None
+
     def deal_cards(self, player, nb_cards):
         for i in range(nb_cards):
             card = self.stack.pop()
@@ -79,62 +88,44 @@ class Hanabi(object):
 
         return None
 
-    # redundancy in the functions below? being in game and player?
-
     # should you have to specify which player does this? or should it always be "self.current player"
     # Re: Good point, we could refactor so that this is current player
 
-    def discard_card(self, player, card_num):
-        self.clues += 1
-        discarded = player.discard(card_num)
-        self.table.discarded_stack.append(discarded)
-        self.deal_cards(player, 1)
-        return None
+    def player_played(self, player, action, **kwargs):
+        assert action in ('play', 'discard', 'hint')
+        # TOOD handle more gracefully than assert
 
-    def play_card(self, player, card_num):
-        stack_name = f'{player.hand[card_num].colour}_stack'
-        stack = getattr(self.table, stack_name, None)
-        card = player.play(card_num)
+        method = getattr(player, action)
+        out = method(**kwargs)
 
-        if len(stack) > 0:  # the stack has cards
-            top_card = stack[-1]
-            if card.number == top_card.number + 1:
-                stack.append(card)
-            else:
+        pass_hand = True
+
+        if action == 'play':
+            card = out
+            play_succesful = self.table.play_card(card)
+            # the table will tell you if the play is succesful
+            self.deal_cards(player, 1)
+
+            if play_succesful is False:
                 print("life lost")
-                self.discard_card(player, card_num)
-                self.clues -= 1  # this is so hacky. At the moment using the discard function adds a clue
                 self.lifes -= 1
-                if self.lifes == 0:
-                    print(" YOU LOSE")
-                    exit()
+                self.table.discarded_stack.append(card)
 
-        else:
-            if card.number == 1:
-                stack.append(card)
+        elif action == 'discard':
+            card = out
+            self.table.discarded_stack.append(card)
+            self.clues += 1
+            self.deal_cards(player, 1)
+
+        elif action == 'hint':
+            if self.clues < 1:
+                print('No hints to left to give. Discard or play.')
+                pass_hand = False
             else:
-                print("life lost")
-                self.discard_card(player, card_num)
-                self.clues -= 1  # this is so hacky
-                self.lifes -= 1
-                if self.lifes == 0:
-                    print(" YOU LOSE")
-                    exit()
+                to_player, info = out
+                to_player.receive_hint(info)
+                self.clues -= 1
 
-        self.deal_cards(player, 1)
+        self.check_endgame()
 
-        return None
-
-    def give_hint(self, to_player, card, info):
-        if self.clues > 0:
-            if info in ['red', 'blue', 'green', 'yellow', 'white']:
-                to_player.hand_colour_info[card] = info
-
-            else:
-                to_player.hand_number_info[card] = info
-
-            self.clues -= 1
-        else:
-            print("\n No hints to left to give. Discard or play")
-
-        return None
+        return pass_hand

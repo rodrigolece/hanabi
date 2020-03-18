@@ -5,39 +5,41 @@ nb_players = 4
 hanabi = Hanabi(nb_players)
 print(hanabi)
 
+
+# Here we test discard
 p = hanabi.current_player
+print(p)
 
-print('\nhand of first player')
-for c in p.hand:
-    print(c.colour, c.number)
+_ = hanabi.player_played(p, 'discard', card=p.hand[1])
+print(p)
 
-hanabi.discard_card(p, 1)  # card_num
-
-print('\nhand of first player')
-for c in p.hand:
-    print(c.colour, c.number)
-
+# Here we test passing hands
 for i in range(3):
-    print('\npassing hand')
+    print('\nPassing hand')
+    hanabi.next_player()
+
+    p = hanabi.current_player
+    print(p)
+
+
+# We test playing a card
+pass_hand = hanabi.player_played(p, 'play', card=p.hand[1])
+
+print("\nCurrent red stack:")
+for c in hanabi.table.red_stack:
+    print('', c)
+
+if pass_hand:
     hanabi.next_player()
     p = hanabi.current_player
 
-    print(f'\nhand of player {p.index}')
-    for c in p.hand:
-        print(c.colour, c.number)
+# We test giving both types of hints
+to_player = hanabi.players[2]
+_ = hanabi.player_played(p, 'hint', to_player=to_player, info='white')
+_ = hanabi.player_played(p, 'hint', to_player=to_player, info=2)
 
-hanabi.play_card(p, 1)  # card_num
+print(f"\nPlayer {to_player.index}'s hand info:")
+for i, (card, colour) in enumerate(to_player.hand_colour_info.items()):
+    print(i, colour, to_player.hand_number_info[card])
 
-print("\ncurrent red stack:")
-for c in hanabi.table.red_stack:
-    print(c)
-
-hanabi.next_player()
-
-p = hanabi.players[2]
-hanabi.give_hint(p, p.hand[0], "white")  # card instead of card_num
-hanabi.give_hint(p, p.hand[1], 2)
-
-print("\n player 2's hand info:")
-for i, (card, colour) in enumerate(p.hand_colour_info.items()):
-    print(i, colour, p.hand_number_info[card])
+print(hanabi)
