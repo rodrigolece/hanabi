@@ -31,7 +31,7 @@ class Hanabi(object):
 
         cards = [Card(c, n) for (c, n) in itertools.product(colours, numbers)]
         self.stack = self._rng.permutation(cards).tolist()
-        self.discarded = []
+        # self.discarded = []
 
         # TODO: check in the rules if numbers are right below
         rules_dict = dict([(2, 6), (3, 5), (4, 5), (5, 4)])
@@ -59,8 +59,15 @@ class Hanabi(object):
         for i in range(nb_cards):
             card = self.stack.pop()
             player.hand.append(card)
-            player.hand_info["numbers"].append(None)
-            player.hand_info["colours"].append(None)
+            # I think we cannot assume the cards are ordered, instead we use
+            # card as a key in a dictionary
+            # player.hand_info["numbers"].append(None)
+            # player.hand_info["colours"].append(None)
+            player.hand_colour_info[card] = None
+            player.hand_number_info[card] = None
+
+        if nb_cards == 1:  # This is the behaviour of pickup_card
+            print("\nPicked up a {} {}".format(card.colour, card.number))
 
         return None
 
@@ -75,20 +82,14 @@ class Hanabi(object):
     # redundancy in the functions below? being in game and player?
 
     # should you have to specify which player does this? or should it always be "self.current player"
-    def pickup_card(self, player):
-        card = self.stack.pop()
-        player.pickup(card)
-
-        return None
-
+    # Re: Good point, we could refactor so that this is current player
 
     def discard_card(self, player, card_num):
-        self.clues+=1
+        self.clues += 1
         discarded = player.discard(card_num)
         self.table.discarded_stack.append(discarded)
-        self.pickup_card(player)
+        self.deal_cards(player, 1)
         return None
-
 
     def play_card(self, player, card_num):
         stack_name = f'{player.hand[card_num].colour}_stack'
@@ -102,9 +103,9 @@ class Hanabi(object):
             else:
                 print("life lost")
                 self.discard_card(player, card_num)
-                self.clues -=1 # this is so hacky. At the moment using the discard function adds a clue
-                self.lifes -=1
-                if self.lifes ==0:
+                self.clues -= 1  # this is so hacky. At the moment using the discard function adds a clue
+                self.lifes -= 1
+                if self.lifes == 0:
                     print(" YOU LOSE")
                     exit()
 
@@ -114,24 +115,26 @@ class Hanabi(object):
             else:
                 print("life lost")
                 self.discard_card(player, card_num)
-                self.clues -=1 # this is so hacky
-                self.lifes -=1
-                if self.lifes ==0:
+                self.clues -= 1  # this is so hacky
+                self.lifes -= 1
+                if self.lifes == 0:
                     print(" YOU LOSE")
                     exit()
 
-        self.pickup_card(player)
+        self.deal_cards(player, 1)
 
         return None
 
-    def give_hint(self, to_player, card_num, info):
-        if self.clues>0:
+    def give_hint(self, to_player, card, info):
+        if self.clues > 0:
             if info in ['red', 'blue', 'green', 'yellow', 'white']:
-                hint_type = 'colours'
-            elif info in [1,2,3,4,5]:
-                hint_type= 'numbers'
-            to_player.hand_info[hint_type][card_num]=info
-            self.clues-=1
+                to_player.hand_colour_info[card] = info
+
+            else:
+                to_player.hand_number_info[card] = info
+
+            self.clues -= 1
         else:
             print("\n No hints to left to give. Discard or play")
+
         return None

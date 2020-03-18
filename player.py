@@ -3,29 +3,30 @@ class Player(object):
     def __init__(self, index):
         self.index = index
         self.hand = []  # how do we sort the hand?
-        self.hand_info = {'numbers':[], 'colours':[]}  # None for no info
+        self.hand_colour_info = {}
+        self.hand_number_info = {}
+        # self.hand_info = {'numbers': [], 'colours': []}  # None for no info
+
         return None
 
-    def info(self, other_player, info):
-        # clues should go down
-        pass
-
     def play(self, card_num):
-        print("\nPlaying a {} {}".format(self.hand[card_num].colour, self.hand[card_num].number))
-        card = self.hand.pop(card_num)
-        self.hand_info["numbers"].pop(card_num)
-        self.hand_info["colours"].pop(card_num)
+        card = self.hand[card_num]
+        print("\nPlaying a {} {}".format(card.colour, card.number))
+        self.hand.remove(card)
+        del self.hand_colour_info[card]
+        del self.hand_number_info[card]
+
         return card
 
     def discard(self, card_num):
-        print("\nDiscarding a {} {}".format(self.hand[card_num].colour, self.hand[card_num].number))
-        card = self.hand.pop(card_num)
-        self.hand_info["numbers"].pop(card_num)
-        self.hand_info["colours"].pop(card_num)
+        card = self.hand[card_num]
+        print("\nDiscarding a {} {}".format(card.colour, card.number))
+        self.hand.remove(card)
+        del self.hand_colour_info[card]
+        del self.hand_number_info[card]
+
         return card
 
-    def pickup(self, card):
-        print("\nPicked up a {} {}".format(card.colour, card.number))
-        self.hand.append(card)
-
-        return None
+    def hint(self, other_player, info):
+        # clues should go down
+        pass

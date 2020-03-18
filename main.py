@@ -11,7 +11,7 @@ print('\nhand of first player')
 for c in p.hand:
     print(c.colour, c.number)
 
-hanabi.discard_card(p,1)
+hanabi.discard_card(p, 1)  # card_num
 
 print('\nhand of first player')
 for c in p.hand:
@@ -26,15 +26,18 @@ for i in range(3):
     for c in p.hand:
         print(c.colour, c.number)
 
-hanabi.play_card(p,1)
+hanabi.play_card(p, 1)  # card_num
 
 print("\ncurrent red stack:")
 for c in hanabi.table.red_stack:
-    c.print_card()
+    print(c)
 
 hanabi.next_player()
 
-hanabi.give_hint(hanabi.players[2], 0, "white")
+p = hanabi.players[2]
+hanabi.give_hint(p, p.hand[0], "white")  # card instead of card_num
+hanabi.give_hint(p, p.hand[1], 2)
 
 print("\n player 2's hand info:")
-print(hanabi.players[2].hand_info)
+for i, (card, colour) in enumerate(p.hand_colour_info.items()):
+    print(i, colour, p.hand_number_info[card])

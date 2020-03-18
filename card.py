@@ -6,6 +6,5 @@ class Card(object):
 
         return None
 
-    def print_card(self):
-        print("A {} {}".format(self.colour, self.number))
-        return None
+    def __str__(self):
+        return "A {} {}".format(self.colour, self.number)
