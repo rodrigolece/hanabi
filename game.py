@@ -25,6 +25,8 @@ class Hanabi(object):
         self.table = Table()
 
         self._rng = np.random.RandomState(seed)
+        self._endgame_flag = False
+        self._endgame_count = self.nb_players
 
         colours = ['red', 'blue', 'green', 'yellow', 'white']
         numbers = [1, 1, 1, 2, 2, 3, 3, 4, 4, 5]
@@ -59,17 +61,31 @@ class Hanabi(object):
         if self.lifes == 0:
             print("YOU LOSE")
             exit()
-        # Here we would add the other conditions like no more cards on stack
-        # and full round played
+
+        if len(self.stack == 0) and self._endgame_count > 0:
+            self._endgame_count -= 1
+
+        if self._endgame_count == 0:
+            points = self.table.total_points()
+            if points == 25:
+                print("CONGRATULATIONS, YOU WON!")
+            else:
+                print(f'Total points: {points}')
+            exit()
 
         return None
 
     def deal_cards(self, player, nb_cards):
+        # In principle this function is not called if _endgame_flag is True
         for i in range(nb_cards):
             card = self.stack.pop()
             player.hand.append(card)
             player.hand_colour_info[card] = None
             player.hand_number_info[card] = None
+
+            if len(self.stack) == 0:
+                self._endgame_flag = True
+                break
 
         if nb_cards == 1:  # This is the behaviour of pickup_card
             print("\nPicked up a {} {}".format(card.colour, card.number))
@@ -84,9 +100,6 @@ class Hanabi(object):
 
         return None
 
-    # should you have to specify which player does this? or should it always be "self.current player"
-    # Re: Good point, we could refactor so that this is current player
-
     def player_played(self, action, **kwargs):
         assert action in ('play', 'discard', 'hint')
         # TOOD handle more gracefully than assert
@@ -99,11 +112,11 @@ class Hanabi(object):
         if action == 'play':
             card = out
             play_succesful = self.table.play_card(card)
-            # the table will tell you if the play is succesful
-            self.deal_cards(self.current_player, 1)
+            if self._endgame_flag is False:
+                self.deal_cards(self.current_player, 1)
 
             if play_succesful is False:
-                print("life lost")
+                print("Life lost.")
                 self.lifes -= 1
                 self.table.discard_card(card)
 
@@ -111,7 +124,8 @@ class Hanabi(object):
             card = out
             self.table.discard_card(card)
             self.clues += 1
-            self.deal_cards(self.current_player, 1)
+            if self._endgame_flag is False:
+                self.deal_cards(self.current_player, 1)
 
         elif action == 'hint':
             if self.clues < 1:

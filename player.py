@@ -1,22 +1,39 @@
 
+from tabulate import tabulate
+
+
 class Player(object):
     def __init__(self, index):
         self.index = index
         self.hand = []  # how do we sort the hand?
         self.hand_colour_info = {}
         self.hand_number_info = {}
-        # self.hand_info = {'numbers': [], 'colours': []}  # None for no info
 
         return None
 
     def __str__(self):
-        s = f'\nPlayer {self.index}:'
+        s = f'\nPlayer {self.index}:\n'
+        tab = []
         for c in self.hand:
-            s = s + f'\n {c.colour} {c.number}, knows: {self.hand_colour_info[c]} {self.hand_number_info[c]}'
+            tab.append([c.colour + ' ' + str(c.number),
+                        str(self.hand_colour_info[c]).replace('None', '-')
+                        + ' ' +
+                        str(self.hand_number_info[c]).replace('None', '-')])
+        s = s + tabulate(tab, headers=('hand', 'info known'))
         return s
 
     def decide_action(self, action, **kwargs):
         pass
+
+    def sort_hand(self, from_num, to_num):
+        # This function will only sort if it is valid, and will not thrown an
+        # error if invalid
+        n = len(self.hand)
+        if 0 <= from_num < n and 0 <= to_num < n:
+            card = self.hand.pop(from_num)
+            self.hand.insert(to_num, card)
+
+        return None
 
     def play(self, card):
         # card = self.hand[card_num]

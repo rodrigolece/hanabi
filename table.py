@@ -12,6 +12,16 @@ class Table(object):
         self.useless_discarded_stack = []
         return None
 
+    def total_points(self):
+        total = 0
+
+        for colour in ['red', 'blue', 'green', 'yellow', 'white']:
+            stack_name = f'{colour}_stack'
+            stack = getattr(self, stack_name)
+            total += len(stack)
+
+        return total
+
     def play_card(self, card):
         stack_name = f'{card.colour}_stack'
         stack = getattr(self, stack_name, None)
@@ -30,20 +40,23 @@ class Table(object):
             # same as above
 
         if play_succesful:
-            useful_stack_card_info = [(c.colour, c.number) for c in self.useful_discarded_stack]
-            stack_indices = [i for i, x in enumerate(useful_stack_card_info) if x == (card.colour, card.number)]
-            if len(stack_indices)>0:
+            useful_stack_card_info = [(c.colour, c.number)
+                                      for c in self.useful_discarded_stack]
+            stack_indices = [i for i, x in enumerate(
+                useful_stack_card_info) if x == (card.colour, card.number)]
+            if len(stack_indices) > 0:
                 for i in stack_indices:
-                    self.useless_discarded_stack.append(self.useful_discarded_stack.pop(i))
+                    self.useless_discarded_stack.append(
+                        self.useful_discarded_stack.pop(i))
 
         return play_succesful
 
     def discard_card(self, card):
         stack_name = f'{card.colour}_stack'
         stack = getattr(self, stack_name, None)
-        if len(stack)==0:
+        if len(stack) == 0:
             self.useful_discarded_stack.append(card)
-        elif stack[-1].number<card.number:
+        elif stack[-1].number < card.number:
             self.useful_discarded_stack.append(card)
         else:
             self.useless_discarded_stack.append(card)
@@ -69,6 +82,5 @@ class Table(object):
             for c in stack:
                 s = s + f" {c.number}"
             print(s)
-
 
         return None
