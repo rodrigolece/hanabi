@@ -1,4 +1,7 @@
 
+import numpy as np
+from tabulate import tabulate
+
 
 class Table(object):
 
@@ -64,23 +67,57 @@ class Table(object):
         return None
 
     def print_discard_piles(self):
-        print("\nUseful discard pile:")
+        useful = np.zeros((5, 5), dtype=str).tolist()
+        useless = np.zeros((5, 5), dtype=str).tolist()
+
+        colours = ['red', 'blue', 'green', 'yellow', 'white']
+        map = dict(zip(colours, range(5)))
+
         for card in self.useful_discarded_stack:
-            print(f'\n {card.colour} {card.number}')
-        print("\nUseless discard pile:")
+            col = map[card.colour]
+            row = card.number - 1
+            s = str(card.number)
+            if useful[row][col]:  # if the entry is not empty, prepend comma
+                s = ',' + s
+            useful[row][col] += s
+
         for card in self.useless_discarded_stack:
-            print(f'\n {card.colour} {card.number}')
+            col = map[card.colour]
+            row = card.number - 1
+            s = str(card.number)
+            if useless[row][col]:
+                s = ',' + s
+            useless[row][col] += s
+
+        # Not elegant, but I insert zeros to replace below
+        for i in range(5):
+            for j in range(5):
+                useful[i][j] = '0' if not useful[i][j] else useful[i][j]
+                useless[i][j] = '0' if not useless[i][j] else useless[i][j]
+
+        print("\nUseful discard pile:\n")
+        print(tabulate(useful, headers=colours).replace('0', '.'))
+
+        print("\nUseless discard pile:")
+        print(tabulate(useless, headers=colours).replace('0', '.'))
 
         return None
 
     def print_stacks(self):
-        print("Current stacks:")
-        for i in ['red', 'blue', 'green', 'yellow', 'white']:
-            s = f"{i} stack:"
-            stack_name = f'{i}_stack'
-            stack = getattr(self, stack_name, None)
-            for c in stack:
-                s = s + f" {c.number}"
-            print(s)
+        mat = np.zeros((5, 5), dtype=int)
+        colours = ['red', 'blue', 'green', 'yellow', 'white']
+
+        for i, c in enumerate(colours):
+            stack_name = f'{c}_stack'
+            stack = getattr(self, stack_name)
+            if len(stack) > 0:
+                top_card = stack[-1]
+                n = top_card.number
+                mat[:n, i] = range(1, n + 1)
+
+        tab = tabulate(mat, headers=colours).replace('0', '.')
+
+        print("\nCurrent stacks:\n")
+        print(tab)
 
         return None
