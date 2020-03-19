@@ -43,20 +43,17 @@ class Table(object):
             # same as above
 
         if play_succesful:
-            useful_stack_card_info = [(c.colour, c.number)
-                                      for c in self.useful_discarded_stack]
-            stack_indices = [i for i, x in enumerate(
-                useful_stack_card_info) if x == (card.colour, card.number)]
-            if len(stack_indices) > 0:
-                for i in stack_indices:
-                    self.useless_discarded_stack.append(
-                        self.useful_discarded_stack.pop(i))
+            for d in self.useful_discarded_stack:
+                if d.colour == card.colour and d.number == card.number:
+                    self.useful_discarded_stack.remove(d)
+                    self.useless_discarded_stack.append(d)
 
         return play_succesful
 
     def discard_card(self, card):
         stack_name = f'{card.colour}_stack'
-        stack = getattr(self, stack_name, None)
+        stack = getattr(self, stack_name)
+
         if len(stack) == 0:
             self.useful_discarded_stack.append(card)
         elif stack[-1].number < card.number:
@@ -98,7 +95,7 @@ class Table(object):
         print("\nUseful discard pile:\n")
         print(tabulate(useful, headers=colours).replace('0', '.'))
 
-        print("\nUseless discard pile:")
+        print("\nUseless discard pile:\n")
         print(tabulate(useless, headers=colours).replace('0', '.'))
 
         return None
