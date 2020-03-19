@@ -62,7 +62,7 @@ class Hanabi(object):
             print("YOU LOSE")
             exit()
 
-        if len(self.stack == 0) and self._endgame_count > 0:
+        if len(self.stack) == 0 and self._endgame_count > 0:
             self._endgame_count -= 1
 
         if self._endgame_count == 0:
