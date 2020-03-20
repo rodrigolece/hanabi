@@ -23,9 +23,7 @@ class Network:
     def send(self, data):
         try:
             self.client.send(pickle.dumps(data))
-            # print("Gets to return statetment in send")
             reply = pickle.loads(self.client.recv(2048*10))
-            # print("received when sending:", reply)
             return reply
         except Exception as e:
             print(e)

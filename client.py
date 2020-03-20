@@ -180,12 +180,7 @@ def main():
     print("You are player", player)
     stage_of_action = 0
     move = ["none"]
-    # try:
-    #     game = n.send("get")
-    #     print("got the following game:", game)
-    # except:
-    #     run = False
-    #     print("Couldn't get game")
+
     while run:
         clock.tick(60)
 

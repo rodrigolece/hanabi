@@ -142,29 +142,18 @@ class Hanabi(object):
         return pass_hand
 
     def update_table(self, move):
-        # print("move:",move)
 
         if (move[0] == 'play') or (move[0]=='discard'):
             #format of move[1] should be an list with a single integer, indicating which card to play/discard
             next = self.player_played(move[0], card = self.current_player.hand[move[1][0]])
-            # print("hanabi object before next player called:")
-            # for i in self.players:
-            #     print(i)
             if next: self.next_player()
         else:
             to_player = move[1][0]
-            # print("move[0]:", move[0])
-            # hint info should be in tuple (player to receive hint, info to give)
             info = move[1][1]
-            # print("info:", info)
-            # print("to_player:", to_player)
             if info in ['red', 'blue', 'green', 'yellow', 'white']:
                 next = self.player_played(move[0], to_player = self.players[to_player], info = info)
             else:
                 next = self.player_played(move[0], to_player = self.players[to_player], info = int(info))
-            # print("hanabi object before next player called:")
-            # for i in self.players:
-            #     print(i)
 
             if next: self.next_player()
 
