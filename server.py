@@ -13,7 +13,7 @@ try:
 except socket.error as e:
     str(e)
 
-s.listen(2)
+s.listen()
 print("Waiting for a connection, Server Started")
 
 

@@ -142,11 +142,9 @@ class Hanabi(object):
         return pass_hand
 
     def update_table(self, move):
-        print("move:",move)
-        if move == "get":
-            pass
+        # print("move:",move)
 
-        elif (move[0] == 'play') or (move[0]=='discard'):
+        if (move[0] == 'play') or (move[0]=='discard'):
             #format of move[1] should be an list with a single integer, indicating which card to play/discard
             next = self.player_played(move[0], card = self.current_player.hand[move[1][0]])
             # print("hanabi object before next player called:")

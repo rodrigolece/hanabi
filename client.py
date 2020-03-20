@@ -139,10 +139,12 @@ def redrawWindow(win, game, p, stage_of_action, action):
     #print play options
     if game.current_player.index == p:
 
+        # print("stageof action and action:", stage_of_action, action)
+
         if (stage_of_action==0) and (action == "none"):
             for btn in btns1:
                 btn.draw(win)
-        elif (stage_of_action==1) and (action == 'hint'):
+        elif (stage_of_action==1) and (action == "hint"):
             for btn in btns3:
                 btn.draw(win)
 
@@ -165,10 +167,10 @@ def redrawWindow(win, game, p, stage_of_action, action):
 
 
 btns1 = [Button("Play", 50, 750, (0,0,0)), Button("Discard", 250, 750, (255,0,0)), Button("Hint", 450, 750, (0,255,0))]
-btns2 = [Button("1", 50, 750, 50, 50, (0,0,0)),Button("2", 150, 750, 50, 50, (0,0,0)),Button("3", 250, 750, 50, 50, (0,0,0)),Button("4", 350, 750, 50, 50, (0,0,0)),Button("5", 450, 750, 50, 50, (0,0,0))] # for card to choose
-btns3 = [Button("Player 1", 50, 750, 50, 50, (0,0,0)),Button("Player 2", 150, 750, 50, 50, (0,0,0)),Button("Player 3", 250, 750, 50, 50, (0,0,0)),Button("Player 4", 350, 750, 50, 50, (0,0,0))] # for palyer to giver hint to
-btns4 = [Button("Red", 50, 700, 50, 50, clrs["red"]),Button("Green", 150, 700, 50, 50, clrs["green"]),Button("Yellow", 250, 700, 50, 50, clrs["yellow"]),Button("White", 350, 700, 50, 50, clrs["white"]),Button("Blue", 450, 700, 50, 50, clrs["blue"])]
-btns5 = [Button("1", 50, 800, 50, 50, (0,0,0)),Button("2", 150, 800, 50, 50, (0,0,0)),Button("3", 250, 800, 50, 50, (0,0,0)),Button("4", 350, 800, 50, 50, (0,0,0)),Button("5", 450, 800, 50, 50, (0,0,0))] # for card to choose
+btns2 = [Button("1", 50, 750, 50, 50, (0,0,0)),Button("2", 250, 750, 50, 50, (0,0,0)),Button("3", 450, 750, 50, 50, (0,0,0)),Button("4", 650, 750, 50, 50, (0,0,0)),Button("5", 850, 750, 50, 50, (0,0,0))] # for card to choose
+btns3 = [Button("Player 1", 50, 750, 50, 50, (0,0,0)),Button("Player 2", 250, 750, 50, 50, (0,0,0)),Button("Player 3", 450, 750, 50, 50, (0,0,0)),Button("Player 4", 650, 750, 50, 50, (0,0,0))] # for palyer to giver hint to
+btns4 = [Button("Red", 50, 700, 50, 50, clrs["red"]),Button("Green", 250, 700, 50, 50, clrs["green"]),Button("Yellow", 450, 700, 50, 50, clrs["yellow"]),Button("White", 650, 700, 50, 50, clrs["white"]),Button("Blue", 850, 700, 50, 50, clrs["blue"])]
+btns5 = [Button("1", 50, 800, 50, 50, (0,0,0)),Button("2", 250, 800, 50, 50, (0,0,0)),Button("3", 450, 800, 50, 50, (0,0,0)),Button("4", 650, 800, 50, 50, (0,0,0)),Button("5", 850, 800, 50, 50, (0,0,0))] # for card to choose
 
 def main():
     run = True
@@ -177,31 +179,34 @@ def main():
     player = int(n.getP())
     print("You are player", player)
     stage_of_action = 0
-    try:
-        game = n.send("get")
-        print("got the following game:", game)
-    except:
-        run = False
-        print("Couldn't get game")
+    move = ["none"]
+    # try:
+    #     game = n.send("get")
+    #     print("got the following game:", game)
+    # except:
+    #     run = False
+    #     print("Couldn't get game")
     while run:
         clock.tick(60)
 
-        # try:
-        #     game = n.send("get")
-        #     # print("got the following game:", game)
-        # except:
-        #     run = False
-        #     print("Couldn't get game")
-        #     break
+        try:
+            game = n.send("get")
+            # print("got the following game:", game)
+        except:
+            run = False
+            print("Couldn't get game")
+            break
 
-        redrawWindow(win, game, player, stage_of_action, "none")
+        redrawWindow(win, game, player, stage_of_action, move[0])
 
-        if game.current_player.index == player:
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                    pygame.quit()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+
+            if game.current_player.index == player:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
@@ -212,6 +217,7 @@ def main():
                                     stage_of_action+=1
                                     redrawWindow(win, game, player, stage_of_action, move[0])
                     elif stage_of_action == 1:
+                        # print(move[0])
                         if move[0] == "hint":
                             for btn in btns3:
                                 if btn.click(pos):
