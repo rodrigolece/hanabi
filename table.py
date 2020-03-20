@@ -95,13 +95,13 @@ class Table(object):
                 useful[i][j] = '0' if not useful[i][j] else useful[i][j]
                 useless[i][j] = '0' if not useless[i][j] else useless[i][j]
 
-        print("\nUseful discard pile:\n")
-        print(tabulate(useful, headers=colours).replace('0', '.'))
+        # print("\nUseful discard pile:\n")
+        # print(tabulate(useful, headers=colours).replace('0', '.'))
+        #
+        # print("\nUseless discard pile:")
+        # print(tabulate(useless, headers=colours).replace('0', '.'))
 
-        print("\nUseless discard pile:")
-        print(tabulate(useless, headers=colours).replace('0', '.'))
-
-        return None
+        return tabulate(useful, headers=colours).replace('0', '.'), tabulate(useless, headers=colours).replace('0', '.')
 
     def print_stacks(self):
         mat = np.zeros((5, 5), dtype=int)

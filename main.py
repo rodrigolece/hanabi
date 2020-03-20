@@ -1,4 +1,3 @@
-
 from game import Hanabi
 
 nb_players = 4
@@ -9,6 +8,7 @@ print(hanabi)
 # Here we test discard
 p = hanabi.current_player
 print(p)
+print(p.__str__())
 
 print('\nPassing hand')
 hanabi.next_player()
