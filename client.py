@@ -9,7 +9,7 @@ height = 1000
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
 
-clrs = {"red":(255,0,0), "green": (0,255,0), "yellow":(0,0,0), "white":(255,255,255), "blue":(0,0,255)}
+clrs = {"red":(255,0,0), "green": (0,255,0), "yellow":(255,255,0), "white":(255,255,255), "blue":(0,0,255)}
 
 class Button:
     def __init__(self, text, x, y, width = 150, height = 100, color = (0,0,0)):
@@ -23,7 +23,7 @@ class Button:
     def draw(self, win, fontsize = 40):
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
         font = pygame.font.SysFont("comicsans", fontsize)
-        text = font.render(self.text, 1, (255,255,255))
+        text = font.render(self.text, 1, clrs["white"])
         win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
 
     def click(self, pos):
@@ -152,24 +152,23 @@ def redrawWindow(win, game, p, stage_of_action, action):
 
         elif stage_of_action==2:
             for btn in btns4:
-                btn.draw(win)
+                btn.draw(win, fontsize=25)
             for btn in btns5:
                 btn.draw(win)
 
     else:
         font = pygame.font.SysFont("comicsans", 60)
-        text = font.render(f"Player {game.current_player.index}'s turn...'", 1, (255,0,0))
+        text = font.render(f"Player {game.current_player.index}'s turn...", 1, (255,0,0))
         win.blit(text, (150,750))
-
 
     pygame.display.update()
 
 
 btns1 = [Button("Play", 50, 750, (0,0,0)), Button("Discard", 250, 750, (255,0,0)), Button("Hint", 450, 750, (0,255,0))]
-btns2 = [Button("1", 50, 750, 75, 75, (0,0,0)),Button("2", 150, 750, 75, 75, (0,0,0)),Button("3", 250, 750, 75, 75, (0,0,0)),Button("4", 350, 750, 75, 75, (0,0,0)),Button("5", 450, 750, 75, 75, (0,0,0))] # for card to choose
-btns3 = [Button("Player 1", 50, 750, 75, 75, (0,0,0)),Button("Player 2", 150, 750, 75, 75, (0,0,0)),Button("Player 3", 250, 750, 75, 75, (0,0,0)),Button("Player 4", 350, 750, 75, 75, (0,0,0))] # for palyer to giver hint to
-btns4 = [Button("Red", 50, 700, 75, 75, (255,0,0)),Button("Green", 150, 700, 75, 75, (0,255,0)),Button("Yellow", 250, 700, 75, 75, (0,0,0)),Button("White", 350, 700, 75, 75, (255,255,255)),Button("Blue", 450, 700, 75, 75, (0,0,255))]
-btns5 = [Button("1", 50, 800, 75, 75, (0,0,0)),Button("2", 150, 800, 75, 75, (0,0,0)),Button("3", 250, 800, 75, 75, (0,0,0)),Button("4", 350, 800, 75, 75, (0,0,0)),Button("5", 450, 800, 75, 75, (0,0,0))] # for card to choose
+btns2 = [Button("1", 50, 750, 50, 50, (0,0,0)),Button("2", 150, 750, 50, 50, (0,0,0)),Button("3", 250, 750, 50, 50, (0,0,0)),Button("4", 350, 750, 50, 50, (0,0,0)),Button("5", 450, 750, 50, 50, (0,0,0))] # for card to choose
+btns3 = [Button("Player 1", 50, 750, 50, 50, (0,0,0)),Button("Player 2", 150, 750, 50, 50, (0,0,0)),Button("Player 3", 250, 750, 50, 50, (0,0,0)),Button("Player 4", 350, 750, 50, 50, (0,0,0))] # for palyer to giver hint to
+btns4 = [Button("Red", 50, 700, 50, 50, clrs["red"]),Button("Green", 150, 700, 50, 50, clrs["green"]),Button("Yellow", 250, 700, 50, 50, clrs["yellow"]),Button("White", 350, 700, 50, 50, clrs["white"]),Button("Blue", 450, 700, 50, 50, clrs["blue"])]
+btns5 = [Button("1", 50, 800, 50, 50, (0,0,0)),Button("2", 150, 800, 50, 50, (0,0,0)),Button("3", 250, 800, 50, 50, (0,0,0)),Button("4", 350, 800, 50, 50, (0,0,0)),Button("5", 450, 800, 50, 50, (0,0,0))] # for card to choose
 
 def main():
     run = True
