@@ -35,20 +35,19 @@ class Hanabi(object):
         self.stack = self._rng.permutation(cards).tolist()
         # self.discarded = []
 
-        # TODO: check in the rules if numbers are right below
-        rules_dict = dict([(2, 6), (3, 5), (4, 5), (5, 4)])
-        nb_to_deal = rules_dict[self.nb_players]
+        # I've updated the numbers below
+        rules_dict = dict([(2, 5), (3, 5), (4, 4), (5, 4)])
+        nb_in_hand = rules_dict[self.nb_players]
 
         self.players = []
 
         for i in range(self.nb_players):
-            player = Player(i)
+            player = Player(i + 1)  # human readable
             self.players.append(player)
-            self.deal_cards(player, nb_to_deal)
+            self.deal_cards(player, nb_in_hand)
 
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
-
 
     def __str__(self):
         s = f"""
@@ -143,18 +142,23 @@ class Hanabi(object):
 
     def update_table(self, move):
 
-        if (move[0] == 'play') or (move[0]=='discard'):
-            #format of move[1] should be an list with a single integer, indicating which card to play/discard
-            next = self.player_played(move[0], card = self.current_player.hand[move[1][0]])
-            if next: self.next_player()
+        if (move[0] == 'play') or (move[0] == 'discard'):
+            # format of move[1] should be an list with a single integer, indicating which card to play/discard
+            next = self.player_played(
+                move[0], card=self.current_player.hand[move[1][0]])
+            if next:
+                self.next_player()
         else:
             to_player = move[1][0]
             info = move[1][1]
             if info in ['red', 'blue', 'green', 'yellow', 'white']:
-                next = self.player_played(move[0], to_player = self.players[to_player], info = info)
+                next = self.player_played(
+                    move[0], to_player=self.players[to_player], info=info)
             else:
-                next = self.player_played(move[0], to_player = self.players[to_player], info = int(info))
+                next = self.player_played(
+                    move[0], to_player=self.players[to_player], info=int(info))
 
-            if next: self.next_player()
+            if next:
+                self.next_player()
 
         return None

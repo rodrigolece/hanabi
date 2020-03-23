@@ -1,26 +1,24 @@
 import socket
-from _thread import *
+import _thread
 import pickle
+
 from game import Hanabi
 
-server = "127.0.0.1"
+ip_address = "127.0.0.1"
 port = 5555
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-try:
-    s.bind((server, port))
-except socket.error as e:
-    str(e)
-
-s.listen()
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((ip_address, port))
+sock.listen()
 print("Waiting for a connection, Server Started")
 
 
-def threaded_client(conn, p, game_num):
-    conn.send(str.encode(str(p)))
+def threaded_client(conn, index_player, game_num):
+    conn.send(str.encode(str(index_player)))
 
-    reply = ""
+    # maybe a problem? games is defined out of this scope
+    game = games[game_num]
+
     while True:
         # try:
         #     data = pickle.loads(conn.recv(4096*4))
@@ -36,21 +34,20 @@ def threaded_client(conn, p, game_num):
         #         conn.sendall(pickle.dumps(game))
         # except:
         #     break
-        data = pickle.loads(conn.recv(4096*4))
-        # print("received data:", data)
-        game = games[game_num]
-        if not data:
+        try:
+            data = pickle.loads(conn.recv(4096 * 4))
+            # print("received data:", data)
+        except EOFError:  # ran out of input
             break
 
-        else:
-            if data != "get":
-                game.update_table(data)
+        if data != "get":
+            game.update_table(data)
 
-            print("Game to send back:", game)
-            try:
-                conn.sendall(pickle.dumps(game))
-            except:
-                break
+        # print("Game to send back:", game)
+        try:
+            conn.sendall(pickle.dumps(game))
+        except:
+            break
 
     print("Lost connection")
     try:
@@ -58,20 +55,23 @@ def threaded_client(conn, p, game_num):
         print("Closing Game", 1)
     except:
         pass
-    conn.close()
+    finally:
+        conn.close()
 
 
 # initialise game
 
 games = {}
 print("Creating a new game...")
-p=0 #first player to connect is player 0
-games[1] = Hanabi(4)
+games[1] = Hanabi(4)  # this assumes specifically 4 person game
+
+index_player = 1  # human readable
+
 while True:
-    conn, addr = s.accept()
-    if p<=3: #this assumes specifically 4 person game
-        print("Connected to:", addr)
-        start_new_thread(threaded_client, (conn, p, 1))
-        p += 1 #next players number
-    else:
-        print("Already 4 players in the game")
+    conn, client_addr = sock.accept()
+    # if index_player < 4:  # this assumes specifically 4 person game
+    print("Connected to:", client_addr)
+    _thread.start_new_thread(threaded_client, (conn, index_player % 4, 1))
+    index_player += 1
+    # else:
+    #     print("Already 4 players in the game")

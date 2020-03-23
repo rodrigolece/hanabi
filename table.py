@@ -97,11 +97,13 @@ class Table(object):
 
         # print("\nUseful discard pile:\n")
         # print(tabulate(useful, headers=colours).replace('0', '.'))
-        #
+        useful_string = tabulate(useful, headers=colours).replace('0', '.')
+
         # print("\nUseless discard pile:")
         # print(tabulate(useless, headers=colours).replace('0', '.'))
+        useless_string = tabulate(useless, headers=colours).replace('0', '.')
 
-        return tabulate(useful, headers=colours).replace('0', '.'), tabulate(useless, headers=colours).replace('0', '.')
+        return useful_string, useless_string
 
     def print_stacks(self):
         mat = np.zeros((5, 5), dtype=int)
