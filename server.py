@@ -10,14 +10,41 @@ port = 5555
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind((ip_address, port))
 sock.listen()
-print("Waiting for a connection, Server Started")
+print("Server listening, waiting for connection ...")
 
 
-def threaded_client(conn, index_player, game_num):
-    conn.send(str.encode(str(index_player)))
+def handle_init(game_pool):
+    game, nb_players = None, None
 
-    # maybe a problem? games is defined out of this scope
-    game = games[game_num]
+    # Get whether the player wants to create a game or join one
+    data = conn.recv(16).decode()
+    print(data)
+
+    if data.startswith('start'):
+        nb_players = int(data[-1])
+        if nb_players in game_pool.keys():
+            # Decide how to handle this case (maybe overwrite existing game?)
+            print('Game exists')
+            game = game_pool[nb_players]
+        else:
+            print("Creating a new game...")
+            game = Hanabi(nb_players)  # TODO change seed for randomness
+            game_pool[nb_players] = game
+    elif data.startswith('join'):
+        nb_players = int(data[-1])
+        game = game_pool.get(nb_players, None)  # TODO, handle game not found
+
+    return game, nb_players
+
+
+def threaded_client(conn, index_player, game_pool):
+    game, nb_players = handle_init(game_pool)
+    # game = games[4]
+
+    # We send to the client the index of the player
+    init_message = f'{index_player}-{nb_players}'.encode()
+    print(init_message)
+    conn.send(init_message)
 
     while True:
         # try:
@@ -40,6 +67,8 @@ def threaded_client(conn, index_player, game_num):
         except EOFError:  # ran out of input
             break
 
+        # if data == 'init':
+
         if data != "get":
             game.update_table(data)
 
@@ -59,24 +88,22 @@ def threaded_client(conn, index_player, game_num):
         conn.close()
 
 
-# initialise game
+game_pool = {}
 
-games = {}
-print("Creating a new game...")
-games[1] = Hanabi(4)  # this assumes specifically 4 person game
-
-index_player = 1  # human readable
+index_player = 0  # TODO: chango to human readable
 
 while True:
     conn, client_addr = sock.accept()
-    if index_player < 5:  # this assumes specifically 4 person game
-        print("Connected to:", client_addr)
-        _thread.start_new_thread(threaded_client, (conn, index_player, 1))
-        index_player += 1
-    else:
-        print("Already 4 players in the game")
+    # if index_player < 5:  # this assumes specifically 4 person game
+    #     print("Connected to:", client_addr)
+    #     _thread.start_new_thread(
+    #         threaded_client, (conn, index_player, game_pool))
+    #     index_player += 1
+    # else:
+    #     print("Already 4 players in the game")
 
     # Below is useful for debugging
-    # print("Connected to:", client_addr)
-    # _thread.start_new_thread(threaded_client, (conn, index_player % 4, 1))
-    # index_player += 1
+    print("Connected to:", client_addr)
+    _thread.start_new_thread(
+        threaded_client, (conn, index_player % 2, game_pool))
+    index_player += 1

@@ -42,7 +42,7 @@ class Hanabi(object):
         self.players = []
 
         for i in range(self.nb_players):
-            player = Player(i + 1)  # human readable
+            player = Player(i)  # TODO: change to human readable
             self.players.append(player)
             self.deal_cards(player, nb_in_hand)
 

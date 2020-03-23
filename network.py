@@ -4,26 +4,35 @@ import pickle
 
 class Network:
     def __init__(self):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = "127.0.0.1"
         self.port = 5555
         self.addr = (self.server, self.port)
-        self.p = self.connect()
+        # self.p = self.connect()
+        # above doesn't work anymore because we send things before the index
 
-    def getP(self):
-        return self.p
+        # Connect the socket as part of initialisation
+        self.sock.connect(self.addr)
 
-    def connect(self):
-        try:
-            self.client.connect(self.addr)
-            return self.client.recv(2048).decode()
-        except:
-            pass
+    # def getP(self):
+    #     return self.p
+
+    # def connect(self):
+    #     try:
+    #         self.sock.connect(self.addr)
+    #         return self.sock.recv(2048).decode()
+    #     except:
+    #         pass
 
     def send(self, data):
         try:
-            self.client.send(pickle.dumps(data))
-            reply = pickle.loads(self.client.recv(2048*10))
+            self.sock.send(pickle.dumps(data))
+            reply = pickle.loads(self.sock.recv(2048 * 10))
             return reply
         except Exception as e:
             print(e)
+
+    def send_bytes(self, data):
+        self.sock.sendall(data)
+
+        return None

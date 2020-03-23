@@ -21,12 +21,12 @@ rgb = {"red": (255, 0, 0),
 
 
 def redrawWindow(win, game, p, stage_of_action, action,
-                 player_width=200, current_player_width=100):
+                 player_width=200, current_player_width=100, nb_players=4):
     win.fill((128, 128, 128))
     font = pygame.font.SysFont("comicsans", 16)
 
     btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
-        nb_players=4)
+        nb_players=nb_players)
 
     # print player hands
     for i, player in enumerate(game.players):
@@ -95,17 +95,22 @@ def redrawWindow(win, game, p, stage_of_action, action,
     pygame.display.update()
 
 
-def main():
+def main(net):
     run = True
     clock = pygame.time.Clock()
-    net = Network()
-    player = int(net.getP())
+
+    data = net.sock.recv(16).decode()
+    print('init message',  data)
+
+    player, nb_players = int(data[0]), int(data[-1])
     print("You are player", player)
+    print('Nb of players', nb_players)
+
     stage_of_action = 0
     move = ["none"]
 
     btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
-        nb_players=4)
+        nb_players=nb_players)
 
     while run:
         clock.tick(60)
@@ -118,7 +123,8 @@ def main():
             print("Couldn't get game")
             break
 
-        redrawWindow(win, game, player, stage_of_action, move[0])
+        redrawWindow(win, game, player, stage_of_action,
+                     move[0], nb_players=nb_players)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -134,8 +140,6 @@ def main():
                             if btn.click(pos):
                                 move = [btn.text.lower()]
                                 stage_of_action += 1
-                                redrawWindow(win, game, player,
-                                             stage_of_action, move[0])
                     elif stage_of_action == 1:
                         # print(move[0])
                         if move[0] == "hint":
@@ -144,8 +148,6 @@ def main():
                                     # minus one beacuse players and cards indexed from 0
                                     move.append([int(btn.text[-1]) - 1])
                                     stage_of_action += 1
-                                    redrawWindow(win, game, player,
-                                                 stage_of_action, move[0])
 
                         else:
                             for btn in btns_card:
@@ -154,8 +156,6 @@ def main():
                                     game = net.send(move)
                                     # n.send(move)
                                     stage_of_action = 0
-                                    redrawWindow(win, game, player,
-                                                 stage_of_action, move[0])
 
                     elif stage_of_action == 2:
                         for btn in btns_hint_clr:
@@ -163,8 +163,6 @@ def main():
                                 move[1].append(btn.text.lower())
                                 game = net.send(move)
                                 stage_of_action = 0
-                                redrawWindow(win, game, player,
-                                             stage_of_action, move[0])
                         for btn in btns_hint_nbr:
                             if btn.click(pos):
                                 move[1].append(int(btn.text))
@@ -172,8 +170,6 @@ def main():
                                 stage_of_action = 0
                                 # for i in game.players:
                                 #     print(i)
-                                redrawWindow(win, game, player,
-                                             stage_of_action, move[0])
 
 
 def redrawMenuWindow(menu_type):
@@ -191,14 +187,23 @@ def redrawMenuWindow(menu_type):
         text = font.render("Select number of players:", 1, rgb['white'])
         win.blit(text, (100, 300))
 
-        btns = [infoButton(str(n), 50 + 200 * i, 450, f'players-{n}')
+        btns = [infoButton(str(n), 50 + 200 * i, 450, f'start-{n}')
                 for i, n in enumerate(range(2, 6))]
 
     elif menu_type == 'join-game':
         font = pygame.font.SysFont("comicsans", 60)
-        text = font.render("Waiting to join ...", 1, rgb['white'])
+        text = font.render("Select number of players:", 1, rgb['white'])
         win.blit(text, (100, 300))
-        btns = []
+
+        btns = [infoButton(str(n), 50 + 200 * i, 450, f'join-{n}')
+                for i, n in enumerate(range(2, 6))]
+
+    elif menu_type == 'waiting':
+        btns = []  # no buttons in this screen
+
+        font = pygame.font.SysFont("comicsans", 60)
+        text = font.render("Waiting for others to join ...", 1, rgb['white'])
+        win.blit(text, (100, 300))
 
     for btn in btns:
         btn.draw(win)
@@ -211,6 +216,7 @@ def redrawMenuWindow(menu_type):
 def menu_screen():
     run = True
     clock = pygame.time.Clock()
+    net = Network()
 
     menu_type = 'main'
 
@@ -218,6 +224,7 @@ def menu_screen():
         clock.tick(60)
 
         btns = redrawMenuWindow(menu_type)
+        btn_info = None
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -228,17 +235,26 @@ def menu_screen():
 
                 for btn in btns:
                     if btn.click(pos):
-                        info = btn.click(pos)
+                        btn_info = btn.click(pos)
 
-                if info in ['start-game', 'join-game']:
-                    print(info)
-                    menu_type = info
-                elif info in ['players-2', 'players-3', 'players-4', 'players-5']:
-                    # this needs to be sent to server
-                    nb_players = int(info[-1])
+                if btn_info in ['start-game', 'join-game']:
+                    menu_type = btn_info
+
+                elif btn_info.startswith('start'):
+                    net.send_bytes(str.encode(btn_info))
+                    # menu_type = 'waiting'
                     run = False
 
-    main()
+                elif btn_info.startswith('join'):
+                    net.send_bytes(str.encode(btn_info))
+                    # menu_type = 'waiting'
+                    run = False
+
+    # all players joined
+    # success = net.sock.recv(16).decode()
+
+    # pass control to main
+    main(net)
 
 
 while True:
