@@ -4,7 +4,7 @@ from tabulate import tabulate
 
 class Player(object):
     def __init__(self, index):
-        self.index = index  # player nunmber
+        self.index = index  # player number
         self.hand = []  # how do we sort the hand?
         self.hand_colour_info = {}
         self.hand_number_info = {}

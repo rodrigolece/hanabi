@@ -69,9 +69,14 @@ index_player = 1  # human readable
 
 while True:
     conn, client_addr = sock.accept()
-    # if index_player < 4:  # this assumes specifically 4 person game
-    print("Connected to:", client_addr)
-    _thread.start_new_thread(threaded_client, (conn, index_player % 4, 1))
-    index_player += 1
-    # else:
-    #     print("Already 4 players in the game")
+    if index_player < 5:  # this assumes specifically 4 person game
+        print("Connected to:", client_addr)
+        _thread.start_new_thread(threaded_client, (conn, index_player, 1))
+        index_player += 1
+    else:
+        print("Already 4 players in the game")
+
+    # Below is useful for debugging
+    # print("Connected to:", client_addr)
+    # _thread.start_new_thread(threaded_client, (conn, index_player % 4, 1))
+    # index_player += 1
