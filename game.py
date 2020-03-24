@@ -49,6 +49,9 @@ class Hanabi(object):
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
 
+        self.num_connections = 1 # only initialised when there is one connection
+        self.ready = False
+
     def __str__(self):
         s = f"""
             Hanabi game with {self.nb_players} players at round {self.round}

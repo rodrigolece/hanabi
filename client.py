@@ -26,89 +26,88 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
     current_player_width = 100
 
     win.fill((128, 128, 128))
-    font = pygame.font.SysFont("comicsans", 16)
 
-    btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
-        nb_players=nb_players)
 
-    # print player hands
-    for i, player in enumerate(game.players):
-        if player.index != p:
-            s = player.__str__()
-            text = wrap_text(s, font, player_width)
-            # text = font.render(textwrap.fill(s, 100), 1, (0, 255,255))
-            win.blit(render_text_list(text, font),
-                     (80 + (i * 100), 200))
-        if player.index == p:
-            s = player.info_string()
-            text = wrap_text(s, font, current_player_width)
-            # text = font.render(textwrap.fill(s, 100), 1, (0, 255,255))
-            win.blit(render_text_list(text, font),
-                     (80 + (i * 100), 200))
-
-    # print discard piles
-    s1, s2 = game.table.print_discard_piles()
-    # print("s1", s1)
-    text1 = wrap_text(s1, font, 400)
-    win.blit(render_text_list(text1, font), (150, 400))  # (0, 0, 0)
-    text2 = wrap_text(s2, font, 400)
-    win.blit(render_text_list(text2, font), (450, 400))  # (0, 0, 0)
-
-    # print current stack top cards in their colours
-
-    font = pygame.font.SysFont("comicsans", 60)
-
-    for i, key in enumerate(['red', 'blue', 'green', 'yellow', 'white']):
-        stack_name = f'{key}_stack'
-        stack = getattr(game.table, stack_name)
-        if len(stack) == 0:
-            text = font.render("--", 1, rgb[key])
-        else:
-            text = font.render(f"{stack[-1].number}", 1, rgb[key])
-        win.blit(text, (100 + (i * 100), 650))
-
-    # print play options
-    if game.current_player.index == p:
-
-        # print("stageof action and action:", stage_of_action, action)
-
-        if (stage_of_action == 0) and (action == "none"):
-            for btn in btns_action:
-                btn.draw(win)
-        elif (stage_of_action == 1) and (action == "hint"):
-            for btn in btns_player:
-                btn.draw(win)
-
-        elif (stage_of_action == 1):
-            for btn in btns_card:
-                btn.draw(win)
-
-        elif stage_of_action == 2:
-            for btn in btns_hint_clr:
-                btn.draw(win)  # fontsize=25
-            for btn in btns_hint_nbr:
-                btn.draw(win)
+    if game.ready==False:
+        font = pygame.font.SysFont("comicsans", 60)
+        text = font.render(f"Waiting for {game.nb_players - game.num_connections} others to join ...", 1, rgb['white'])
+        win.blit(text, (100, 300))
 
     else:
+        font = pygame.font.SysFont("comicsans", 16)
+        btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
+            nb_players=nb_players)
+
+        # print player hands
+        for i, player in enumerate(game.players):
+            if player.index != p:
+                s = player.__str__()
+                text = wrap_text(s, font, player_width)
+                # text = font.render(textwrap.fill(s, 100), 1, (0, 255,255))
+                win.blit(render_text_list(text, font),
+                         (80 + (i * 100), 200))
+            if player.index == p:
+                s = player.info_string()
+                text = wrap_text(s, font, current_player_width)
+                # text = font.render(textwrap.fill(s, 100), 1, (0, 255,255))
+                win.blit(render_text_list(text, font),
+                         (80 + (i * 100), 200))
+
+        # print discard piles
+        s1, s2 = game.table.print_discard_piles()
+        # print("s1", s1)
+        text1 = wrap_text(s1, font, 400)
+        win.blit(render_text_list(text1, font), (150, 400))  # (0, 0, 0)
+        text2 = wrap_text(s2, font, 400)
+        win.blit(render_text_list(text2, font), (450, 400))  # (0, 0, 0)
+
+        # print current stack top cards in their colours
+
         font = pygame.font.SysFont("comicsans", 60)
-        text = font.render(
-            f"Player {game.current_player.index}'s turn...", 1, rgb['white'])
-        win.blit(text, (150, 750))
+
+        for i, key in enumerate(['red', 'blue', 'green', 'yellow', 'white']):
+            stack_name = f'{key}_stack'
+            stack = getattr(game.table, stack_name)
+            if len(stack) == 0:
+                text = font.render("--", 1, rgb[key])
+            else:
+                text = font.render(f"{stack[-1].number}", 1, rgb[key])
+            win.blit(text, (100 + (i * 100), 650))
+
+        # print play options
+        if game.current_player.index == p:
+
+            # print("stageof action and action:", stage_of_action, action)
+
+            if (stage_of_action == 0) and (action == "none"):
+                for btn in btns_action:
+                    btn.draw(win)
+            elif (stage_of_action == 1) and (action == "hint"):
+                for btn in btns_player:
+                    btn.draw(win)
+
+            elif (stage_of_action == 1):
+                for btn in btns_card:
+                    btn.draw(win)
+
+            elif stage_of_action == 2:
+                for btn in btns_hint_clr:
+                    btn.draw(win)  # fontsize=25
+                for btn in btns_hint_nbr:
+                    btn.draw(win)
+
+        else:
+            font = pygame.font.SysFont("comicsans", 60)
+            text = font.render(
+                f"Player {game.current_player.index}'s turn...", 1, rgb['white'])
+            win.blit(text, (150, 750))
 
     pygame.display.update()
 
 
-def main(net):
+def main(net, player):
     run = True
     clock = pygame.time.Clock()
-
-    try:
-        player = int(net.sock.recv(16).decode())
-        print("You are player", player)
-    except:
-        print('Failed to fetch player number')
-        net.sock.close()
-        exit()
 
     stage_of_action = 0
     move = ["none"]
@@ -186,15 +185,17 @@ def main(net):
                                 #     print(i)
 
 
-def redrawMenuWindow(menu_type):
+def redrawMenuWindow(menu_type, avail_games=None):
 
     win.fill((128, 128, 128))
     if menu_type == 'main':
         btn_start = infoButton('START NEW GAME', 300, 450,
                                'start-game', width=400, fs=30)
-        btn_join = infoButton('JOIN GAME', 300, 600,
-                              'join-game', width=400, fs=30)
-        btns = [btn_start, btn_join]
+        btns = [btn_start]
+        for i, game_id in enumerate(avail_games.keys()):
+            btn_join = infoButton(f'JOIN GAME {game_id}: {avail_games[game_id].nb_players} player', 50 + 400 * i, 600,
+                              f'join-{game_id}', width=400, fs=30)
+            btns.append(btn_join)
 
     elif menu_type == 'start-game':
         font = pygame.font.SysFont("comicsans", 60)
@@ -204,20 +205,20 @@ def redrawMenuWindow(menu_type):
         btns = [infoButton(str(n), 50 + 200 * i, 450, f'start-{n}')
                 for i, n in enumerate(range(2, 6))]
 
-    elif menu_type == 'join-game':
-        font = pygame.font.SysFont("comicsans", 60)
-        text = font.render("Select number of players:", 1, rgb['white'])
-        win.blit(text, (100, 300))
+    # elif menu_type == 'join-game':
+    #     font = pygame.font.SysFont("comicsans", 60)
+    #     text = font.render("Select number of players:", 1, rgb['white'])
+    #     win.blit(text, (100, 300))
+    #
+    #     btns = [infoButton(str(n), 50 + 200 * i, 450, f'join-{n}')
+    #             for i, n in enumerate(range(4))]
 
-        btns = [infoButton(str(n), 50 + 200 * i, 450, f'join-{n}')
-                for i, n in enumerate(range(4))]
-
-    elif menu_type == 'waiting':
-        btns = []  # no buttons in this screen
-
-        font = pygame.font.SysFont("comicsans", 60)
-        text = font.render("Waiting for others to join ...", 1, rgb['white'])
-        win.blit(text, (100, 300))
+    # elif menu_type == 'waiting':
+    #     btns = []  # no buttons in this screen
+    #
+    #     font = pygame.font.SysFont("comicsans", 60)
+    #     text = font.render("Waiting for others to join ...", 1, rgb['white'])
+    #     win.blit(text, (100, 300))
 
     for btn in btns:
         btn.draw(win)
@@ -233,11 +234,13 @@ def menu_screen():
     net = Network()
 
     menu_type = 'main'
-
+    to_get = 'get_avail_games'
     while run:
         clock.tick(60)
 
-        btns = redrawMenuWindow(menu_type)
+        games = net.send(to_get)
+
+        btns = redrawMenuWindow(menu_type, games)
         btn_info = None
 
         for event in pygame.event.get():
@@ -251,16 +254,18 @@ def menu_screen():
                     if btn.click(pos):
                         btn_info = btn.click(pos)
 
-                if btn_info in ['start-game', 'join-game']:
+                if btn_info =='start-game':
                     menu_type = btn_info
 
                 elif btn_info.startswith('start'):
-                    net.send_bytes(btn_info.encode())
+                    net.send(btn_info)
+                    player = 0
                     # menu_type = 'waiting'
                     run = False
 
                 elif btn_info.startswith('join'):
-                    net.send_bytes(btn_info.encode())
+                    player = net.send(btn_info)
+                    print("player received when joining:", player)
                     # menu_type = 'waiting'
                     run = False
 
@@ -268,7 +273,7 @@ def menu_screen():
     # success = net.sock.recv(16).decode()
 
     # pass control to main
-    main(net)
+    main(net, int(player))
 
 
 # while True
