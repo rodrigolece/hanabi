@@ -128,10 +128,10 @@ def main(net):
     while run:
         clock.tick(60)
 
+        game = net.send("get")
+
         redrawWindow(win, game, player, stage_of_action,
                      move[0], nb_players=nb_players)
-
-        print(player, stage_of_action,move[0])
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
