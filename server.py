@@ -13,97 +13,99 @@ sock.listen()
 print("Server listening, waiting for connection ...")
 
 
-def handle_init(game_pool):
-    game, nb_players = None, None
-
-    # Get whether the player wants to create a game or join one
-    data = conn.recv(16).decode()
-    print(data)
-
-    if data.startswith('start'):
-        nb_players = int(data[-1])
-        if nb_players in game_pool.keys():
-            # Decide how to handle this case (maybe overwrite existing game?)
-            print('Game exists')
-            game = game_pool[nb_players]
-        else:
-            print("Creating a new game...")
-            game = Hanabi(nb_players)  # TODO change seed for randomness
-            game_pool[nb_players] = game
-    elif data.startswith('join'):
-        nb_players = int(data[-1])
-        game = game_pool.get(nb_players, None)  # TODO, handle game not found
-
-    return game, nb_players
-
-
-def threaded_client(conn, index_player, game_pool):
-    game, nb_players = handle_init(game_pool)
-    # game = games[4]
-
-    # We send to the client the index of the player
-    init_message = f'{index_player}-{nb_players}'.encode()
-    print(init_message)
-    conn.send(init_message)
+def threaded_client(conn, game, p_nbr):
+    conn.send(str.encode(str(p_nbr)))
 
     while True:
-        # try:
-        #     data = pickle.loads(conn.recv(4096*4))
-        #     print("received data", data)
-        #     if not data:
-        #         break
-        #
-        #     else:
-        #         if data != "get":
-        #             game.update_table(data)
-        #
-        #         print("Game to send back:", game)
-        #         conn.sendall(pickle.dumps(game))
-        # except:
-        #     break
         try:
             data = pickle.loads(conn.recv(4096 * 4))
             # print("received data:", data)
-        except EOFError:  # ran out of input
+        except EOFError:
+            data = ''
+            pass
+
+        if not data:
             break
 
-        # if data == 'init':
+        else:
+            if data != "get":
+                game.update_table(data)
 
-        if data != "get":
-            game.update_table(data)
-
-        # print("Game to send back:", game)
-        try:
-            conn.sendall(pickle.dumps(game))
-        except:
-            break
+            # print("Game to send back:", game)
+            try:
+                conn.sendall(pickle.dumps(game))
+            except:
+                break
 
     print("Lost connection")
-    try:
-        del game
-        print("Closing Game", 1)
-    except:
-        pass
-    finally:
-        conn.close()
+    # TODO This needs to be done more carefully, probably outside the thread
+    # try:
+    #     del game
+    #     print("Closing Game", 1)
+    # except:
+    #     pass
+    conn.close()
 
 
 game_pool = {}
+players_connected_to_game = {}
 
-index_player = 0  # TODO: chango to human readable
+id_new_game = 0
 
 while True:
     conn, client_addr = sock.accept()
-    # if index_player < 5:  # this assumes specifically 4 person game
-    #     print("Connected to:", client_addr)
-    #     _thread.start_new_thread(
-    #         threaded_client, (conn, index_player, game_pool))
-    #     index_player += 1
-    # else:
-    #     print("Already 4 players in the game")
-
-    # Below is useful for debugging
     print("Connected to:", client_addr)
-    _thread.start_new_thread(
-        threaded_client, (conn, index_player % 2, game_pool))
-    index_player += 1
+
+    data = ''
+    try:
+        data = conn.recv(16).decode()
+        print('Received init message:', data)
+    except:
+        print('Problem receiving init message')
+        print('Clossing connection with:', client_addr)
+        conn.close()
+
+    # only executed when data was read
+    if data.startswith('start'):
+        nb_players = int(data[-1])
+        print(f'Creating new game for {nb_players} players. ID: {id_new_game}')
+        game = Hanabi(nb_players)  # TODO change seed for randomness
+        p_nbr = 0
+        game_pool[id_new_game] = game
+        players_connected_to_game[id_new_game] = [client_addr]
+        id_new_game += 1
+
+    elif data.startswith('join'):
+        close_connection = False
+        id_game = int(data[-1])
+        game = game_pool.get(id_game, None)
+        if game is not None:
+            nb_connected = len(players_connected_to_game[id_game])
+            if nb_connected < game.nb_players:
+                print(f'Adding {client_addr} to game {id_game}')
+                players_connected_to_game[id_game].append(client_addr)
+                p_nbr = nb_connected
+            else:
+                print('Game is full')
+                close_connection = True
+        else:
+            print(f'Game {id_game} does not exist')
+            close_connection = True
+
+        if close_connection:
+            print('Closing connection with:', client_addr)
+            conn.close()
+            continue
+
+    # only executed if the connection is still in place
+    _thread.start_new_thread(threaded_client, (conn, game, p_nbr))
+
+    # Below is useful for debugging, send game as opposed to start threaded_client
+    # try:
+    #     print('Sending game')
+    #     conn.sendall(pickle.dumps(game))
+    #
+    # except:
+    #     print('Problem sending game')
+    #     print('Closing connection with:', client_addr)
+    #     conn.close()

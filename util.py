@@ -10,7 +10,6 @@ rgb = {"red": (255, 0, 0),
 
 
 class Button:
-    # width=150, height=100
     def __init__(self, text, x, y, width=150, height=100, color=(0, 0, 0), fs=40):
         self.text = text
         self.x = x
