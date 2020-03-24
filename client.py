@@ -126,6 +126,8 @@ def main(net):
         redrawWindow(win, game, player, stage_of_action,
                      move[0], nb_players=nb_players)
 
+        print(player, stage_of_action,move[0])
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -140,6 +142,8 @@ def main(net):
                             if btn.click(pos):
                                 move = [btn.text.lower()]
                                 stage_of_action += 1
+                                # redrawWindow(win, game, player, stage_of_action,
+                                #              move[0], nb_players=nb_players)
                     elif stage_of_action == 1:
                         # print(move[0])
                         if move[0] == "hint":
@@ -148,7 +152,8 @@ def main(net):
                                     # minus one beacuse players and cards indexed from 0
                                     move.append([int(btn.text[-1]) - 1])
                                     stage_of_action += 1
-
+                                    # redrawWindow(win, game, player, stage_of_action,
+                                    #              move[0], nb_players=nb_players)
                         else:
                             for btn in btns_card:
                                 if btn.click(pos):
@@ -156,6 +161,9 @@ def main(net):
                                     game = net.send(move)
                                     # n.send(move)
                                     stage_of_action = 0
+                                    move = ["none"]
+                                    # redrawWindow(win, game, player, stage_of_action,
+                                    #              move[0], nb_players=nb_players)
 
                     elif stage_of_action == 2:
                         for btn in btns_hint_clr:
@@ -163,11 +171,17 @@ def main(net):
                                 move[1].append(btn.text.lower())
                                 game = net.send(move)
                                 stage_of_action = 0
+                                move = ["none"]
+                                # redrawWindow(win, game, player, stage_of_action,
+                                #              move[0], nb_players=nb_players)
                         for btn in btns_hint_nbr:
                             if btn.click(pos):
                                 move[1].append(int(btn.text))
                                 game = net.send(move)
                                 stage_of_action = 0
+                                move = ["none"]
+                                # redrawWindow(win, game, player, stage_of_action,
+                                #              move[0], nb_players=nb_players)
                                 # for i in game.players:
                                 #     print(i)
 
