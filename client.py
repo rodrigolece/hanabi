@@ -20,8 +20,11 @@ rgb = {"red": (255, 0, 0),
        "white": (255, 255, 255)}
 
 
-def redrawWindow(win, game, p, stage_of_action, action,
-                 player_width=200, current_player_width=100, nb_players=4):
+def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
+    # style
+    player_width = 200
+    current_player_width = 100
+
     win.fill((128, 128, 128))
     font = pygame.font.SysFont("comicsans", 16)
 
@@ -99,15 +102,25 @@ def main(net):
     run = True
     clock = pygame.time.Clock()
 
-    data = net.sock.recv(16).decode()
-    print('init message',  data)
-
-    player, nb_players = int(data[0]), int(data[-1])
-    print("You are player", player)
-    print('Nb of players', nb_players)
+    try:
+        player = int(net.sock.recv(16).decode())
+        print("You are player", player)
+    except:
+        print('Failed to fetch player number')
+        net.sock.close()
+        exit()
 
     stage_of_action = 0
     move = ["none"]
+
+    game = net.send("get")
+
+    if game is None:
+        print('Failed to fetch game')
+        net.sock.close()
+        exit()
+
+    nb_players = game.nb_players
 
     btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
         nb_players=nb_players)
@@ -115,19 +128,11 @@ def main(net):
     while run:
         clock.tick(60)
 
-        try:
-            game = net.send("get")
-            # print("got the following game:", game)
-        except:
-            run = False
-            print("Couldn't get game")
-            break
-
         redrawWindow(win, game, player, stage_of_action,
                      move[0], nb_players=nb_players)
 
         print(player, stage_of_action,move[0])
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -142,8 +147,7 @@ def main(net):
                             if btn.click(pos):
                                 move = [btn.text.lower()]
                                 stage_of_action += 1
-                                # redrawWindow(win, game, player, stage_of_action,
-                                #              move[0], nb_players=nb_players)
+
                     elif stage_of_action == 1:
                         # print(move[0])
                         if move[0] == "hint":
@@ -161,9 +165,7 @@ def main(net):
                                     game = net.send(move)
                                     # n.send(move)
                                     stage_of_action = 0
-                                    move = ["none"]
-                                    # redrawWindow(win, game, player, stage_of_action,
-                                    #              move[0], nb_players=nb_players)
+                                    move = ['none']
 
                     elif stage_of_action == 2:
                         for btn in btns_hint_clr:
@@ -171,9 +173,7 @@ def main(net):
                                 move[1].append(btn.text.lower())
                                 game = net.send(move)
                                 stage_of_action = 0
-                                move = ["none"]
-                                # redrawWindow(win, game, player, stage_of_action,
-                                #              move[0], nb_players=nb_players)
+                                move = ['none']
                         for btn in btns_hint_nbr:
                             if btn.click(pos):
                                 move[1].append(int(btn.text))
@@ -210,7 +210,7 @@ def redrawMenuWindow(menu_type):
         win.blit(text, (100, 300))
 
         btns = [infoButton(str(n), 50 + 200 * i, 450, f'join-{n}')
-                for i, n in enumerate(range(2, 6))]
+                for i, n in enumerate(range(4))]
 
     elif menu_type == 'waiting':
         btns = []  # no buttons in this screen
@@ -255,12 +255,12 @@ def menu_screen():
                     menu_type = btn_info
 
                 elif btn_info.startswith('start'):
-                    net.send_bytes(str.encode(btn_info))
+                    net.send_bytes(btn_info.encode())
                     # menu_type = 'waiting'
                     run = False
 
                 elif btn_info.startswith('join'):
-                    net.send_bytes(str.encode(btn_info))
+                    net.send_bytes(btn_info.encode())
                     # menu_type = 'waiting'
                     run = False
 
@@ -271,6 +271,6 @@ def menu_screen():
     main(net)
 
 
-while True:
-    menu_screen()
-    # main()
+# while True
+menu_screen()
+# main()
