@@ -27,9 +27,9 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
 
     win.fill((128, 128, 128))
 
-    if game.ready is False:
+    if game._ready is False:
         font = pygame.font.SysFont("comicsans", 60)
-        diff = game.nb_players - game.num_connections
+        diff = game.nb_players - game._num_connections
         other_s = 'other' if diff == 1 else 'others'
         text = font.render(
             f"Waiting for {diff} {other_s} to join ...", 1, rgb['white'])

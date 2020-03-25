@@ -53,10 +53,10 @@ def threaded_client(conn, client_address):
                         print(f'Adding {client_addr} to game {id_game}')
                         players_connected_to_game[id_game].append(
                             client_address)
-                        game.num_connections += 1
+                        game._num_connections += 1
                         p_nbr = nb_connected  # player number
-                        if game.num_connections == game.nb_players:
-                            game.ready = True
+                        if game._num_connections == game.nb_players:
+                            game._ready = True
                         conn.sendall(pickle.dumps(p_nbr))
                     else:
                         conn.sendall(pickle.dumps("choose_again"))

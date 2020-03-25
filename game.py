@@ -18,6 +18,10 @@ class Hanabi(object):
     # lifes : int
 
     def __init__(self, nb_players, seed=42):
+        # Below is used in online games
+        self._num_connections = 1  # a game is initialised when there is 1 connection
+        self._ready = False
+
         self.nb_players = nb_players
         self.round = 0
         self.clues = 8
@@ -48,9 +52,6 @@ class Hanabi(object):
 
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
-
-        self.num_connections = 1 # only initialised when there is one connection
-        self.ready = False
 
     def __str__(self):
         s = f"""
