@@ -61,6 +61,24 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         text2 = wrap_text(s2, font, 400)
         win.blit(render_text_list(text2, font), (450, 400))  # (0, 0, 0)
 
+        # print most recent move
+        if game.most_recent_move==None:
+            prevMoveString = "Awaiting first move"
+        elif (game.current_player.index - 1)%game.nb_players == p:
+            prevMoveString = "You went last"
+        else:
+
+            if game.most_recent_move[0] == 'hint':
+                prevMoveString = f"Player {(game.current_player.index - 1)%game.nb_players} gave a hint to player {game.most_recent_move[1][0]} about cards which are {game.most_recent_move[1][1]}"
+            elif game.most_recent_move[0] == 'play':
+                prevMoveString = f"Player {(game.current_player.index - 1)%game.nb_players} played a {game.most_recent_move[1].colour} {game.most_recent_move[1].number} and picked up a {game.most_recent_pickup.colour} {game.most_recent_pickup.number} "
+            elif game.most_recent_move[0] == 'discard':
+                prevMoveString = f"Player {(game.current_player.index - 1)%game.nb_players} discarded a {game.most_recent_move[1].colour} {game.most_recent_move[1].number} and picked up a {game.most_recent_pickup.colour} {game.most_recent_pickup.number} "
+
+        font = pygame.font.SysFont("comicsans", 30)
+        prevMoveText = font.render(prevMoveString, 1, (0,0,0))
+        win.blit(prevMoveText, (300,550))
+
         # print current stack top cards in their colours
 
         font = pygame.font.SysFont("comicsans", 60)

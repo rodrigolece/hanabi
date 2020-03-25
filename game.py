@@ -51,6 +51,8 @@ class Hanabi(object):
 
         self.num_connections = 1 # only initialised when there is one connection
         self.ready = False
+        self.most_recent_move = None
+        self.most_recent_pickup = None
 
     def __str__(self):
         s = f"""
@@ -92,6 +94,7 @@ class Hanabi(object):
 
         if nb_cards == 1:  # This is the behaviour of pickup_card
             print("\nPicked up a {} {}".format(card.colour, card.number))
+            self.most_recent_pickup = card
 
         return None
 
@@ -144,13 +147,14 @@ class Hanabi(object):
         return pass_hand
 
     def update_table(self, move):
-
         if (move[0] == 'play') or (move[0] == 'discard'):
             # format of move[1] should be an list with a single integer, indicating which card to play/discard
+            card1 = self.current_player.hand[move[1][0]]
             next = self.player_played(
-                move[0], card=self.current_player.hand[move[1][0]])
+                move[0], card=card1)
             if next:
                 self.next_player()
+                self.most_recent_move = [move[0],card1]
         else:
             to_player = move[1][0]
             info = move[1][1]
@@ -162,6 +166,7 @@ class Hanabi(object):
                     move[0], to_player=self.players[to_player], info=int(info))
 
             if next:
+                self.most_recent_move = move
                 self.next_player()
 
         return None
