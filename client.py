@@ -30,7 +30,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
     else:
         font = pygame.font.SysFont("comicsans", 16)
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
-            nb_players=nb_players)
+            nb_players=nb_players, player = p)
 
         # print your own hand:
         pos = 50, 50  # Style here
@@ -121,7 +121,7 @@ def main(net, player):
     nb_players = game.nb_players
 
     btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
-        nb_players=nb_players)
+        nb_players=nb_players, player=player)
 
     while run:
         clock.tick(60)

@@ -132,7 +132,7 @@ def render_text_list(lines, font, colour=(255, 255, 255)):
     return surface
 
 
-def game_buttons(nb_players=4):
+def game_buttons(nb_players=4, player=0):
     rules_dict = dict([(2, 5), (3, 5), (4, 4), (5, 4)])
     nb_in_hand = rules_dict[nb_players]
 
@@ -150,8 +150,9 @@ def game_buttons(nb_players=4):
                  for i in range(nb_in_hand)]
 
     # for player to give hint to
+    hint_players = [i for i in range(nb_players) if i!=player]
     btns_player = [Button(f'Player {i+1}', x_offset + x_space * i, y_offset)
-                   for i in range(nb_players)]
+                   for i in hint_players]
 
     btns_hint_clr = []
     btns_hint_nbr = []
@@ -211,7 +212,7 @@ class PygamePlayer(object):
 
             if info_clr or info_nbr:
                 hint_c = PygameCard(Card(c, s), hidden=False)
-                hint_c.draw(win, (left + 30, top_card),
+                hint_c.draw(win, (left + 60, top_card),
                             fs=fs, color=rgb['white'])
 
             pc = PygameCard(card, hidden=self._hidden)
