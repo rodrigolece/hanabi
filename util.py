@@ -1,16 +1,26 @@
 
 import pygame
 
+from card import Card
+
+
+__all__ = ['rgb',
+           'Button', 'infoButton', 'game_buttons',
+           'PygamePlayer', 'PygameTable']
 
 rgb = {"red": (255, 0, 0),
        "green": (0, 255, 0),
        "blue": (0, 0, 255),
        "yellow": (255, 255, 0),
-       "white": (255, 255, 255)}
+       "white": (255, 255, 255),
+       "black": (0, 0, 0),
+       "card": (142, 213, 200),
+       "useless": (255, 176, 215),
+       "background": (220, 220, 220)}
 
 
 class Button:
-    def __init__(self, text, x, y, width=150, height=100, color=(0, 0, 0), fs=40):
+    def __init__(self, text, x, y, width=150, height=100, color=rgb['black'], fs=40):
         self.text = text
         self.x = x
         self.y = y
@@ -37,7 +47,7 @@ class Button:
 
 class infoButton(Button):
     def __init__(self, text, x, y, info,
-                 width=150, height=100, color=(0, 0, 0), fs=40):
+                 width=150, height=100, color=rgb['black'], fs=40):
         self.text = text
         self.x = x
         self.y = y
@@ -143,16 +153,136 @@ def game_buttons(nb_players=4):
     btns_player = [Button(f'Player {i+1}', x_offset + x_space * i, y_offset)
                    for i in range(nb_players)]
 
-    y_off = y_offset - 50
     btns_hint_clr = []
     btns_hint_nbr = []
 
     for i, clr in enumerate(['Red', 'Green', 'Yellow', 'White', 'Blue']):
         x = x_offset + x_space * i
-        btn_clr = Button(clr, x, y_off - 50, color=rgb[clr.lower()], fs=25)
+        btn_clr = Button(clr, x, y_offset, color=rgb[clr.lower()], fs=25)
         btns_hint_clr.append(btn_clr)
 
-        btn_nbr = Button(str(i + 1), x, y_offset + 50)
+        btn_nbr = Button(str(i + 1), x, y_offset + 100)
         btns_hint_nbr.append(btn_nbr)
 
     return btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr
+
+
+class PygameCard(object):
+
+    def __init__(self, card, hidden=False, show_clr=True, show_nbr=True):
+        self.card = card
+        self._hidden = hidden
+        return None
+
+    def draw(self, win, pos, width=50, height=70, color=rgb['card'], fs=50):
+        rect = *pos, width, height
+        pygame.draw.rect(win, color, rect)
+
+        if not self._hidden:
+            font = pygame.font.SysFont('comicsans', fs)
+            s, c = f'{self.card.number}', self.card.colour
+            text = font.render(s, 1, rgb[c])  # 1 is antialias, what is that?
+            x, y = pos
+            x += (width - text.get_width()) // 2
+            y += (height - text.get_height()) // 2
+            win.blit(text, (x, y))  # area=None, special_flags=0
+            return None
+
+
+class PygamePlayer(object):
+
+    def __init__(self, player, hidden=False):
+        self.player = player
+        self._hidden = hidden
+
+        return None
+
+    def draw(self, win, pos, fs=50, space=100):
+        left, top = pos
+
+        for i, card in enumerate(self.player.hand):
+            top_card = top + space * i
+
+            info_nbr = self.player.hand_number_info[card]
+            s = info_nbr if info_nbr else '--'
+
+            info_clr = self.player.hand_colour_info[card]
+            c = info_clr if info_clr else 'black'
+
+            if info_clr or info_nbr:
+                hint_c = PygameCard(Card(c, s), hidden=False)
+                hint_c.draw(win, (left + 30, top_card),
+                            fs=fs, color=rgb['white'])
+
+            pc = PygameCard(card, hidden=self._hidden)
+            pc.draw(win, (left, top_card), fs=fs)
+
+        return None
+
+
+class PygameTable():
+    def __init__(self, table):
+        self.table = table
+        return None
+
+    def draw(self, win, pos_stacks, pos_useful, pos_useless, fs=50):
+        colours = ['red', 'blue', 'green', 'yellow', 'white']
+        map = dict(zip(colours, range(5)))
+
+        # The main playing stacks
+        left, top = pos_stacks
+        rect = left, top, 490, 110  # Style here
+        pygame.draw.rect(win, rgb['white'], rect)
+
+        for i, clr in enumerate(colours):
+            stack_name = f'{clr}_stack'
+            stack = getattr(self.table, stack_name)
+
+            pos = left + 20 + i * 100, top + 20
+            if len(stack) == 0:
+                card = PygameCard([], hidden=True)
+                card.draw(win, pos, color=rgb['white'])
+            else:
+                card = PygameCard(stack[-1], hidden=False)
+                card.draw(win, pos, fs=fs)
+
+        # The useful discarded
+        rect = *pos_useful, 500, 300  # Style here
+        self._print_discard_stack(self.table.useful_discarded_stack,
+                                  win, rect, rgb['white'], fs - 15)
+
+        # The useless_discarded_stack
+        rect = *pos_useless, 500, 300  # Style here
+        self._print_discard_stack(self.table.useless_discarded_stack,
+                                  win, rect, rgb['useless'], fs - 15)
+
+    def _print_discard_stack(self, stack, win, rect, clr, fs):
+        left, top, width, height = rect
+        pygame.draw.rect(win, clr, rect)
+
+        # area to put the cards
+        height -= 40
+        width -= 40
+
+        top += 20
+        left += 20
+
+        # We calculate available space based on height
+        card_space_y = height // 5
+        card_height = card_space_y * 4 // 5  # 80 percent should be the card
+        card_width = card_height * 5 // 7
+
+        card_space_x = width // 5
+
+        colours = ['red', 'blue', 'green', 'yellow', 'white']
+        map = dict(zip(colours, range(5)))
+
+        previously_drawn = []
+        for card in stack:
+            pc = PygameCard(card, hidden=False)
+            i = card.number - 1
+            j = map[card.colour]
+            count = previously_drawn.count((i, j))
+            previously_drawn.append((i, j))
+            pos = left + card_space_x * j + 20 * count, top + card_space_y * i
+            pc.draw(win, pos, width=card_width, height=card_height, fs=fs)

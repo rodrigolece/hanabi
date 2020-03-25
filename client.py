@@ -3,29 +3,21 @@ import pickle
 # import textwrap
 
 from network import Network
-from util import Button, infoButton, wrap_text, render_text_list, game_buttons
+from util import *
 
 import pygame
 pygame.font.init()
 
-window_width = 1000
+window_width = 1200
 window_height = 1000
 win = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Client")  # Give name of player?
 
-rgb = {"red": (255, 0, 0),
-       "green": (0, 255, 0),
-       "blue": (0, 0, 255),
-       "yellow": (255, 255, 0),
-       "white": (255, 255, 255)}
-
 
 def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
     # style
-    player_width = 200
-    current_player_width = 100
 
-    win.fill((128, 128, 128))
+    win.fill(rgb['background'])
 
     if game._ready is False:
         font = pygame.font.SysFont("comicsans", 60)
@@ -40,40 +32,29 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
             nb_players=nb_players)
 
+        # print your own hand:
+        pos = 50, 50  # Style here
+        me = game.players[p]
+        pc = PygamePlayer(me, hidden=True)
+        pc.draw(win, pos)
+
         # print player hands
-        for i, player in enumerate(game.players):
-            if player.index != p:
-                s = player.__str__()
-                text = wrap_text(s, font, player_width)
-                # text = font.render(textwrap.fill(s, 100), 1, (0, 255,255))
-                win.blit(render_text_list(text, font),
-                         (80 + (i * 100), 200))
+        i = 0  # enumerate doesn't work because of skip
+        for player in game.players:
             if player.index == p:
-                s = player.info_string()
-                text = wrap_text(s, font, current_player_width)
-                # text = font.render(textwrap.fill(s, 100), 1, (0, 255,255))
-                win.blit(render_text_list(text, font),
-                         (80 + (i * 100), 200))
+                continue
+            pc = PygamePlayer(player, hidden=False)
+            pos = 200 + 100 * i, 50  # Style here
+            pc.draw(win, pos)
+            i += 1
 
-        # print discard piles
-        s1, s2 = game.table.print_discard_piles()
-        # print("s1", s1)
-        text1 = wrap_text(s1, font, 400)
-        win.blit(render_text_list(text1, font), (150, 400))  # (0, 0, 0)
-        text2 = wrap_text(s2, font, 400)
-        win.blit(render_text_list(text2, font), (450, 400))  # (0, 0, 0)
+        # print stacks
+        pt = PygameTable(game.table)
 
-        # print current stack top cards in their colours
-        font = pygame.font.SysFont("comicsans", 60)
-
-        for i, key in enumerate(['red', 'blue', 'green', 'yellow', 'white']):
-            stack_name = f'{key}_stack'
-            stack = getattr(game.table, stack_name)
-            if len(stack) == 0:
-                text = font.render("--", 1, rgb[key])
-            else:
-                text = font.render(f"{stack[-1].number}", 1, rgb[key])
-            win.blit(text, (100 + (i * 100), 650))
+        pos_stacks = 50, 590
+        pos_useful = (650, 50)
+        pos_useless = (650, 400)
+        pt.draw(win, pos_stacks, pos_useful, pos_useless)
 
         # print play options
         if game.current_player.index == p:
@@ -179,7 +160,7 @@ def main(net, player):
 
 def redrawMenuWindow(menu_type, avail_games=None):
 
-    win.fill((128, 128, 128))
+    win.fill(rgb['background'])
     if menu_type == 'main':
         btn_start = infoButton('START NEW GAME', 300, 450,
                                'start-game', width=400, fs=30)
