@@ -80,7 +80,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         else:
             font = pygame.font.SysFont("comicsans", 60)
             text = font.render(
-                f"Player {game.current_player.index}'s turn...", 1, rgb['white'])
+                f"Player {game.current_player.index+1}'s turn...", 1, rgb['white'])
             win.blit(text, (150, 750))
 
         # print most recent move
@@ -91,11 +91,11 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         else:
 
             if game.most_recent_move[0] == 'hint':
-                prevMoveString = f"Player {(game.current_player.index - 1)%game.nb_players} gave a hint to player {game.most_recent_move[1][0]} about cards which are {game.most_recent_move[1][1]}"
+                prevMoveString = f"Player {((game.current_player.index-1)%game.nb_players)+1} gave a hint to player {game.most_recent_move[1][0] + 1} about cards which are {game.most_recent_move[1][1]}"
             elif game.most_recent_move[0] == 'play':
-                prevMoveString = f"Player {(game.current_player.index - 1)%game.nb_players} played a {game.most_recent_move[1].colour} {game.most_recent_move[1].number} and picked up a {game.most_recent_pickup.colour} {game.most_recent_pickup.number} "
+                prevMoveString = f"Player {((game.current_player.index-1)%game.nb_players)+1} played a {game.most_recent_move[1].colour} {game.most_recent_move[1].number} and picked up a {game.most_recent_pickup.colour} {game.most_recent_pickup.number} "
             elif game.most_recent_move[0] == 'discard':
-                prevMoveString = f"Player {(game.current_player.index - 1)%game.nb_players} discarded a {game.most_recent_move[1].colour} {game.most_recent_move[1].number} and picked up a {game.most_recent_pickup.colour} {game.most_recent_pickup.number} "
+                prevMoveString = f"Player {((game.current_player.index-1)%game.nb_players)+1} discarded a {game.most_recent_move[1].colour} {game.most_recent_move[1].number} and picked up a {game.most_recent_pickup.colour} {game.most_recent_pickup.number} "
 
         font = pygame.font.SysFont("comicsans", 30)
         prevMoveText = font.render(prevMoveString, 1, rgb['black'])

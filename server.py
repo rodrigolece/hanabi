@@ -84,6 +84,7 @@ def threaded_client(conn, client_address):
     #     pass
     print('Closing connection with:', client_addr)
     conn.close()
+    players_connected_to_game[id_game].remove(client_addr)
 
 
 game_pool = {}

@@ -201,6 +201,10 @@ class PygamePlayer(object):
     def draw(self, win, pos, fs=50, space=100):
         left, top = pos
 
+        font = pygame.font.SysFont("comicsans", 20)
+        text = font.render(f"Player {self.player.index + 1}", 1, (0,0,0))
+        win.blit(text, (left, top - 25))
+
         for i, card in enumerate(self.player.hand):
             top_card = top + space * i
 
