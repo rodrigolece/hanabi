@@ -4,7 +4,8 @@ import pickle
 
 from game import Hanabi
 
-ip_address = "127.0.0.1"
+ip_address = "192.168.0.15"
+# ip_address = "127.0.0.1"
 port = 5555
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
