@@ -229,9 +229,9 @@ def menu_screen():
 
     while run:
         clock.tick(60)
-
-        games = net.send(to_get)
-
+        # print("game not yet received")
+        games = net.send_data(to_get)
+        # print("games:",games)
         btns = redrawMenuWindow(menu_type, games)
         btn_info = None
 
