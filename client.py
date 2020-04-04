@@ -105,13 +105,14 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
 
 
 def main(net, player):
+    print("in main loop")
     run = True
     clock = pygame.time.Clock()
 
     stage_of_action = 0
     move = ["none"]
 
-    game = net.send("get")
+    game = net.send_data("get")
 
     if game is None:
         print('Failed to fetch game')
@@ -126,7 +127,7 @@ def main(net, player):
     while run:
         clock.tick(60)
 
-        game = net.send("get")
+        game = net.send_data("get")
 
         redrawWindow(win, game, player, stage_of_action,
                      move[0], nb_players=nb_players)
@@ -157,7 +158,7 @@ def main(net, player):
                             for btn in btns_card:
                                 if btn.click(pos):
                                     move.append([int(btn.text) - 1])
-                                    game = net.send(move)
+                                    game = net.send_data(move)
                                     stage_of_action = 0
                                     move = ['none']
 
@@ -165,13 +166,13 @@ def main(net, player):
                         for btn in btns_hint_clr:
                             if btn.click(pos):
                                 move[1].append(btn.text.lower())
-                                game = net.send(move)
+                                game = net.send_data(move)
                                 stage_of_action = 0
                                 move = ['none']
                         for btn in btns_hint_nbr:
                             if btn.click(pos):
                                 move[1].append(int(btn.text))
-                                game = net.send(move)
+                                game = net.send_data(move)
                                 stage_of_action = 0
                                 move = ["none"]
 
@@ -250,13 +251,15 @@ def menu_screen():
                     menu_type = btn_info
 
                 elif btn_info.startswith('start'):
-                    net.send(btn_info)
+                    # net.send(btn_info)
+                    player = net.send_data(btn_info)
                     player = 0
                     print("player received when joining:", player)
                     run = False
 
                 elif btn_info.startswith('join'):
-                    reply = net.send(btn_info)
+                    # reply = net.send(btn_info)
+                    reply = net.send_data(btn_info)
                     if isinstance(reply, int):
                         player = reply
                         print("player received when joining:", player)

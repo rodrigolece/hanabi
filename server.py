@@ -14,17 +14,20 @@ sock.bind((ip_address, port))
 sock.listen()
 print("Server listening, waiting for connection ...")
 
-def send_data(data):
+def send_data(conn, data):
     try:
         pickled_data = pickle.dumps(data)
-        length = len(pickled_data)
+        # length = len(pickled_data)
         # sendall to make sure it blocks if there's back-pressure on the socket
         length = pack('>Q', len(pickled_data))
-        self.sock.sendall(length)
+        # self.sock.sendall(length)
+        conn.sendall(length)
         # self.sock.sendall(pickle.dumps(length))
-        self.sock.sendall(pickled_data)
-        reply = pickle.loads(self.receive_data())
-        return reply
+        # self.sock.sendall(pickled_data)
+        conn.sendall(pickled_data)
+        # reply = pickle.loads(self.receive_data())
+        # return reply
+        return None
     except Exception as e:
         print("exception in in server.py send_data")
         print(e)
@@ -35,19 +38,20 @@ def receive_data(conn):
         bs = conn.recv(8)
         (length,) = unpack('>Q', bs)
         # length = pickle.loads(bs)
-        print("length in network receive_data:", length)
+        # print("length in network receive_data:", length)
         data = b''
-        print("data:", data)
+        # print("data:", data)
         while len(data) < length:
             # doing it in batches is generally better than trying
             # to do it all in one go, so I believe.
             to_read = length - len(data)
-            print("to_read:", to_read)
+            # print("to_read:", to_read)
 
             data += conn.recv(
                             4096 if to_read > 4096 else to_read)
-            print("data:", data)
-        return data
+        #     print("data:", data)
+        # print("unpickled data:", pickle.loads(data))
+        return pickle.loads(data)
     except Exception as e:
         print("exception in in server.py receive_data")
         print(e)
@@ -59,8 +63,8 @@ def threaded_client(conn, client_address):
     while True:
         try:
             # data = pickle.loads(conn.recv(2048 * 50))
-            data = pickle.loads(receive_data(conn))
-            print("data received:", data)
+            data = receive_data(conn)
+            # print("data received:", data)
 
         except EOFError:  # what is this?? raised when the socket is empty and you call recv
             data = ''
@@ -71,7 +75,8 @@ def threaded_client(conn, client_address):
 
         elif isinstance(data, str):
             if data == "get_avail_games":
-                conn.sendall(pickle.dumps(game_pool))
+                # conn.sendall(pickle.dumps(game_pool))
+                send_data(conn, game_pool)
 
             elif data.startswith('start'):
                 nb_players = int(data[-1])
@@ -83,7 +88,8 @@ def threaded_client(conn, client_address):
                 players_connected_to_game[id_new_game] = [client_address]
                 id_game = id_new_game
                 id_new_game += 1
-                conn.send(pickle.dumps(p_nbr))
+                # conn.send(pickle.dumps(p_nbr))
+                send_data(conn, p_nbr)
 
             elif data.startswith('join'):
                 id_game = int(data[-1])
@@ -99,21 +105,25 @@ def threaded_client(conn, client_address):
                         p_nbr = nb_connected  # player number
                         if game._num_connections == game.nb_players:
                             game._ready = True
-                        conn.sendall(pickle.dumps(p_nbr))
+                        # conn.sendall(pickle.dumps(p_nbr))
+                        send_data(conn, p_nbr)
                     else:
-                        conn.sendall(pickle.dumps("choose_again"))
+                        # conn.sendall(pickle.dumps("choose_again"))
+                        send_data(conn, "choose_again")
                         print('Trying to join full game', client_addr)
 
             elif data == "get":
                 try:
-                    conn.sendall(pickle.dumps(game))
+                    # conn.sendall(pickle.dumps(game))
+                    send_data(conn, game)
                 except:
                     break
         else:  # data is not instance of str
             game.update_table(data)
 
             try:
-                conn.sendall(pickle.dumps(game))
+                # conn.sendall(pickle.dumps(game))
+                send_data(conn, game)
             except:
                 break
 
