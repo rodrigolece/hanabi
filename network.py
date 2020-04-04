@@ -26,19 +26,19 @@ class Network:
     #     except:
     #         pass
 
-    def send(self, data):
-        try:
-            self.sock.send(pickle.dumps(data))
-            reply = pickle.loads(self.sock.recv(2048 * 50))
-            return reply
-        except Exception as e:
-            print(e)
-
-    def send_bytes(self, data):
-        self.sock.sendall(data)
-
-        return None
-
+    # def send(self, data):
+    #     try:
+    #         self.sock.send(pickle.dumps(data))
+    #         reply = pickle.loads(self.sock.recv(2048 * 50))
+    #         return reply
+    #     except Exception as e:
+    #         print(e)
+    #
+    # def send_bytes(self, data):
+    #     self.sock.sendall(data)
+    #
+    #     return None
+    #
     def receive_data(self):
         try:
             bs = self.sock.recv(8)

@@ -20,7 +20,7 @@ rgb = {"red": (255, 0, 0),
 
 
 class Button:
-    def __init__(self, text, x, y, width=150, height=100, color=rgb['black'], fs=40):
+    def __init__(self, text, x, y, width=150, height=100, color=rgb['black'], fs=40, text_colour="white"):
         self.text = text
         self.x = x
         self.y = y
@@ -29,11 +29,12 @@ class Button:
         self.height = height
         self.rect = (x, y, width, height)
         self.fontsize = fs
+        self.text_colour = text_colour
 
     def draw(self, win):
         pygame.draw.rect(win, self.color, self.rect)
         font = pygame.font.SysFont("comicsans", self.fontsize)
-        text = font.render(self.text, 1, rgb["white"])
+        text = font.render(self.text, 1, rgb[self.text_colour])
         win.blit(text, (self.x + round(self.width / 2) - round(text.get_width() / 2),
                         self.y + round(self.height / 2) - round(text.get_height() / 2)))
 
@@ -47,7 +48,7 @@ class Button:
 
 class infoButton(Button):
     def __init__(self, text, x, y, info,
-                 width=150, height=100, color=rgb['black'], fs=40):
+                 width=150, height=100, color=rgb['black'], fs=40, text_colour="white"):
         self.text = text
         self.x = x
         self.y = y
@@ -57,7 +58,8 @@ class infoButton(Button):
         self.rect = (x, y, width, height)
         self.fontsize = fs
         self.info = info
-
+        self.text_colour = text_colour
+        
     def click(self, pos):
         x, y = pos
         clicked = None
@@ -159,7 +161,7 @@ def game_buttons(nb_players=4, player=0):
 
     for i, clr in enumerate(['Red', 'Green', 'Yellow', 'White', 'Blue']):
         x = x_offset + x_space * i
-        btn_clr = Button(clr, x, y_offset, color=rgb[clr.lower()], fs=25)
+        btn_clr = Button(clr, x, y_offset, color=rgb[clr.lower()], fs=25, text_colour = "black")
         btns_hint_clr.append(btn_clr)
 
         btn_nbr = Button(str(i + 1), x, y_offset + 100)

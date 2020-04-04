@@ -8,7 +8,7 @@ from util import *
 import pygame
 pygame.font.init()
 
-window_width = 1200
+window_width = 1500
 window_height = 1000
 win = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Client")  # Give name of player?
@@ -32,6 +32,21 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
             nb_players=nb_players, player = p)
 
+        #display player number
+        your_player = f"You are Player {p+1}"
+        font = pygame.font.SysFont("comicsans", 40)
+        your_player_text = font.render(your_player, 1, rgb['black'])
+        win.blit(your_player_text, (1050, 750))
+
+        #print remaining lives and clues
+        lives_remaining = f"Lives: {game.lifes}"
+        clues_remaining = f"Clues: {game.clues}"
+        font = pygame.font.SysFont("comicsans", 40)
+        lives_remaining_text = font.render(lives_remaining, 1, rgb['black'])
+        clues_remaining_text = font.render(clues_remaining, 1, rgb['black'])
+        win.blit(lives_remaining_text, (1050, 800))
+        win.blit(clues_remaining_text, (1050, 850))
+
         # print your own hand:
         pos = 50, 50  # Style here
         me = game.players[p]
@@ -44,7 +59,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
             if player.index == p:
                 continue
             pc = PygamePlayer(player, hidden=False)
-            pos = 200 + 100 * i, 50  # Style here
+            pos = 200 + 150 * i, 50  # Style here
             pc.draw(win, pos)
             i += 1
 
@@ -52,8 +67,8 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         pt = PygameTable(game.table)
 
         pos_stacks = 50, 590
-        pos_useful = (650, 50)
-        pos_useless = (650, 400)
+        pos_useful = (800, 50)
+        pos_useless = (800, 400)
         pt.draw(win, pos_stacks, pos_useful, pos_useless)
 
         # print play options
@@ -253,7 +268,7 @@ def menu_screen():
                 elif btn_info.startswith('start'):
                     # net.send(btn_info)
                     player = net.send_data(btn_info)
-                    player = 0
+                    # player = 0
                     print("player received when joining:", player)
                     run = False
 
