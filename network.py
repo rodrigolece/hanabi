@@ -3,11 +3,12 @@ import pickle
 from struct import pack, unpack
 import sys
 
+
 class Network:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.server = "82.14.199.227" # TODO: remove once we share
-        self.server = "127.0.0.1"
+        self.server = "82.14.199.227"  # TODO: remove once we share
+        # self.server = "127.0.0.1"
         self.port = 5555
         self.addr = (self.server, self.port)
         # self.p = self.connect()
@@ -50,7 +51,8 @@ class Network:
 
             # print("length in network receive_data:", length)
             data = b''
-            while len(data) < length:                # doing it in batches is generally better than trying
+            # doing it in batches is generally better than trying
+            while len(data) < length:
                 # to do it all in one go, so I believe.
                 to_read = length - len(data)
                 data += self.sock.recv(

@@ -30,15 +30,15 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
     else:
         font = pygame.font.SysFont("comicsans", 16)
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
-            nb_players=nb_players, player = p)
+            nb_players=nb_players, player=p)
 
-        #display player number
+        # display player number
         your_player = f"You are Player {p+1}"
         font = pygame.font.SysFont("comicsans", 40)
         your_player_text = font.render(your_player, 1, rgb['black'])
         win.blit(your_player_text, (1050, 750))
 
-        #print remaining lives and clues
+        # print remaining lives and clues
         lives_remaining = f"Lives: {game.lifes}"
         clues_remaining = f"Clues: {game.clues}"
         font = pygame.font.SysFont("comicsans", 40)
