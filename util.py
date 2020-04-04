@@ -59,7 +59,7 @@ class infoButton(Button):
         self.fontsize = fs
         self.info = info
         self.text_colour = text_colour
-        
+
     def click(self, pos):
         x, y = pos
         clicked = None
@@ -156,6 +156,10 @@ def game_buttons(nb_players=4, player=0):
     btns_player = [Button(f'Player {i+1}', x_offset + x_space * i, y_offset)
                    for i in hint_players]
 
+    # go back button
+
+    btns_go_back = [infoButton("Go back", 570, 590, info="back_to_stage_0"), infoButton("Go back", 570, 590, info = "back_to_stage_0")]
+
     btns_hint_clr = []
     btns_hint_nbr = []
 
@@ -167,7 +171,7 @@ def game_buttons(nb_players=4, player=0):
         btn_nbr = Button(str(i + 1), x, y_offset + 100)
         btns_hint_nbr.append(btn_nbr)
 
-    return btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr
+    return btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr, btns_go_back
 
 
 class PygameCard(object):

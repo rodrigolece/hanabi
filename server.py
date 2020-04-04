@@ -79,6 +79,7 @@ def threaded_client(conn, client_address):
                 send_data(conn, game_pool)
 
             elif data.startswith('start'):
+                print("client_adress:",client_address[0])
                 nb_players = int(data[-1])
                 print(
                     f'Creating new game for {nb_players} players. ID: {id_new_game}')
@@ -86,6 +87,9 @@ def threaded_client(conn, client_address):
                 p_nbr = 0
                 game_pool[id_new_game] = game
                 players_connected_to_game[id_new_game] = [client_address]
+
+                ips_p_nbrs[id_new_game] = {client_address[0]: p_nbr}
+                print("ips_p_nbrs:", ips_p_nbrs)
                 id_game = id_new_game
                 id_new_game += 1
                 # conn.send(pickle.dumps(p_nbr))
@@ -98,11 +102,26 @@ def threaded_client(conn, client_address):
                     nb_connected = len(players_connected_to_game[id_game])
                     # below should have the goal of making sure  there are no problems with two different clients choosing a agme with 1 spot left at roughly the same time
                     if nb_connected < game.nb_players:
-                        print(f'Adding {client_addr} to game {id_game}')
-                        players_connected_to_game[id_game].append(
-                            client_address)
-                        game._num_connections += 1
-                        p_nbr = nb_connected  # player number
+                        print("client_adress:",client_address)
+                        if client_address[0] in ips_p_nbrs[id_game]:
+                            print(f'Re-adding {client_address} to game {id_game}')
+                            players_connected_to_game[id_game].append(
+                                client_address)
+                            game._num_connections = len(players_connected_to_game[id_game])
+                            p_nbr = ips_p_nbrs[id_game][client_address[0]]
+                        elif len(ips_p_nbrs[id_game])< game.nb_players:
+                            print(f'Adding {client_address} to game {id_game}')
+                            players_connected_to_game[id_game].append(
+                                client_address)
+                            game._num_connections = len(players_connected_to_game[id_game])
+                            p_nbr = nb_connected  # player number
+                            ips_p_nbrs[id_game][client_address[0]] = p_nbr
+                            print("ips_p_nbrs:", ips_p_nbrs)
+                        else:
+                            send_data(conn, "choose_again")
+                            print('Trying to join full game', client_address)
+                            continue
+
                         if game._num_connections == game.nb_players:
                             game._ready = True
                         # conn.sendall(pickle.dumps(p_nbr))
@@ -110,7 +129,8 @@ def threaded_client(conn, client_address):
                     else:
                         # conn.sendall(pickle.dumps("choose_again"))
                         send_data(conn, "choose_again")
-                        print('Trying to join full game', client_addr)
+                        print('Trying to join full game', client_address)
+
 
             elif data == "get":
                 try:
@@ -134,13 +154,18 @@ def threaded_client(conn, client_address):
     #     print("Closing Game", 1)
     # except:
     #     pass
-    print('Closing connection with:', client_addr)
+    print('Closing connection with:', client_address)
     conn.close()
-    players_connected_to_game[id_game].remove(client_addr)
+    players_connected_to_game[id_game].remove(client_address)
+    #Wait for player to come back
+    game_pool[id_game]._num_connections = len(players_connected_to_game[id_game])
+    if game_pool[id_game]._num_connections != game_pool[id_game].nb_players:
+        game_pool[id_game]._ready = False
 
 
 game_pool = {}
 players_connected_to_game = {}
+ips_p_nbrs = {}
 
 id_new_game = 0
 

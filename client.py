@@ -29,7 +29,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
 
     else:
         font = pygame.font.SysFont("comicsans", 16)
-        btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
+        btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr, btns_go_back = game_buttons(
             nb_players=nb_players, player=p)
 
         # display player number
@@ -75,22 +75,30 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         if game.current_player.index == p:
 
             if (stage_of_action == 0) and (action == "none"):
-                for btn in btns_action:
-                    btn.draw(win)
+                if game.clues > 0:
+                    for btn in btns_action:
+                        btn.draw(win)
+                else:
+                    for btn in btns_action:
+                        if btn.text != "Hint":
+                            btn.draw(win)
 
             elif (stage_of_action == 1) and (action == "hint"):
                 for btn in btns_player:
                     btn.draw(win)
+                btns_go_back[0].draw(win)
 
             elif (stage_of_action == 1):
                 for btn in btns_card:
                     btn.draw(win)
+                btns_go_back[0].draw(win)
 
             elif stage_of_action == 2:
                 for btn in btns_hint_clr:
                     btn.draw(win)  # fontsize=25
                 for btn in btns_hint_nbr:
                     btn.draw(win)
+                btns_go_back[1].draw(win)
 
         else:
             font = pygame.font.SysFont("comicsans", 60)
@@ -136,7 +144,7 @@ def main(net, player):
 
     nb_players = game.nb_players
 
-    btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr = game_buttons(
+    btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr, btns_go_back = game_buttons(
         nb_players=nb_players, player=player)
 
     while run:
@@ -169,6 +177,10 @@ def main(net, player):
                                     # minus one beacuse players and cards indexed from 0
                                     move.append([int(btn.text[-1]) - 1])
                                     stage_of_action += 1
+                            if btns_go_back[0].click(pos):
+                                stage_of_action = 0
+                                move[0] = "none"
+
                         else:
                             for btn in btns_card:
                                 if btn.click(pos):
@@ -177,6 +189,10 @@ def main(net, player):
                                     stage_of_action = 0
                                     move = ['none']
 
+                            if btns_go_back[0].click(pos):
+                                stage_of_action = 0
+                                move[0] = "none"
+
                     elif stage_of_action == 2:
                         for btn in btns_hint_clr:
                             if btn.click(pos):
@@ -184,12 +200,16 @@ def main(net, player):
                                 game = net.send_data(move)
                                 stage_of_action = 0
                                 move = ['none']
+
                         for btn in btns_hint_nbr:
                             if btn.click(pos):
                                 move[1].append(int(btn.text))
                                 game = net.send_data(move)
                                 stage_of_action = 0
                                 move = ["none"]
+
+                        if btns_go_back[1].click(pos):
+                            stage_of_action = 1
 
 
 def redrawMenuWindow(menu_type, avail_games=None):
