@@ -14,6 +14,7 @@ sock.bind((ip_address, port))
 sock.listen()
 print("Server listening, waiting for connection ...")
 
+
 def send_data(conn, data):
     try:
         pickled_data = pickle.dumps(data)
@@ -48,7 +49,7 @@ def receive_data(conn):
             # print("to_read:", to_read)
 
             data += conn.recv(
-                            4096 if to_read > 4096 else to_read)
+                4096 if to_read > 4096 else to_read)
         #     print("data:", data)
         # print("unpickled data:", pickle.loads(data))
         return pickle.loads(data)
@@ -79,11 +80,12 @@ def threaded_client(conn, client_address):
                 send_data(conn, game_pool)
 
             elif data.startswith('start'):
-                print("client_adress:",client_address[0])
+                print("client_adress:", client_address[0])
                 nb_players = int(data[-1])
                 print(
                     f'Creating new game for {nb_players} players. ID: {id_new_game}')
-                game = Hanabi(nb_players)  # TODO change seed for randomness
+                # TODO change seed for randomness
+                game = Hanabi(nb_players, id_new_game)
                 p_nbr = 0
                 game_pool[id_new_game] = game
                 players_connected_to_game[id_new_game] = [client_address]
@@ -102,18 +104,21 @@ def threaded_client(conn, client_address):
                     nb_connected = len(players_connected_to_game[id_game])
                     # below should have the goal of making sure  there are no problems with two different clients choosing a agme with 1 spot left at roughly the same time
                     if nb_connected < game.nb_players:
-                        print("client_adress:",client_address)
+                        print("client_adress:", client_address)
                         if client_address[0] in ips_p_nbrs[id_game]:
-                            print(f'Re-adding {client_address} to game {id_game}')
+                            print(
+                                f'Re-adding {client_address} to game {id_game}')
                             players_connected_to_game[id_game].append(
                                 client_address)
-                            game._num_connections = len(players_connected_to_game[id_game])
+                            game._num_connections = len(
+                                players_connected_to_game[id_game])
                             p_nbr = ips_p_nbrs[id_game][client_address[0]]
-                        elif len(ips_p_nbrs[id_game])< game.nb_players:
+                        elif len(ips_p_nbrs[id_game]) < game.nb_players:
                             print(f'Adding {client_address} to game {id_game}')
                             players_connected_to_game[id_game].append(
                                 client_address)
-                            game._num_connections = len(players_connected_to_game[id_game])
+                            game._num_connections = len(
+                                players_connected_to_game[id_game])
                             p_nbr = nb_connected  # player number
                             ips_p_nbrs[id_game][client_address[0]] = p_nbr
                             print("ips_p_nbrs:", ips_p_nbrs)
@@ -131,7 +136,6 @@ def threaded_client(conn, client_address):
                         send_data(conn, "choose_again")
                         print('Trying to join full game', client_address)
 
-
             elif data == "get":
                 try:
                     # conn.sendall(pickle.dumps(game))
@@ -140,6 +144,9 @@ def threaded_client(conn, client_address):
                     break
         else:  # data is not instance of str
             game.update_table(data)
+            if game._finished:
+                game_pool.pop(game._id_game, None)
+                players_connected_to_game.pop(game._id_game)
 
             try:
                 # conn.sendall(pickle.dumps(game))
@@ -148,19 +155,18 @@ def threaded_client(conn, client_address):
                 break
 
     print("Lost connection")
-    # TODO This needs to be done more carefully, probably outside the thread
-    # try:
-    #     del game
-    #     print("Closing Game", 1)
-    # except:
-    #     pass
     print('Closing connection with:', client_address)
     conn.close()
-    players_connected_to_game[id_game].remove(client_address)
-    #Wait for player to come back
-    game_pool[id_game]._num_connections = len(players_connected_to_game[id_game])
-    if game_pool[id_game]._num_connections != game_pool[id_game].nb_players:
-        game_pool[id_game]._ready = False
+    if getattr(game, '_finished', 0) is None:  # game hasn't finished
+        # Wait for player to come back
+        address_list = players_connected_to_game[game._id_game]
+        if client_address in address_list:
+            address_list.remove(client_addr)
+        nb_connected = len(players_connected_to_game[game._id_game])
+        game_pool[game._id_game]._num_connections = nb_connected  # -= 1?
+        if nb_connected != game_pool[game._id_game].nb_players:
+            # TODO: I think this can be done immediately right? no if statement
+            game_pool[game._id_game]._ready = False
 
 
 game_pool = {}
