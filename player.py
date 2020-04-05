@@ -76,4 +76,15 @@ class Player(object):
                 if card.number == info:
                     self.hand_number_info[card] = info
 
+        self.reorder_hand()
+
+        return None
+
+    def reorder_hand(self):
+        current_pos = 0
+        for i, card in enumerate(self.hand):
+            if self.hand_colour_info[card] or self.hand_number_info[card]:
+                self.move_card_in_hand(i, current_pos)
+                current_pos += 1
+
         return None

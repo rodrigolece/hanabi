@@ -27,18 +27,32 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
             f"Waiting for {diff} {other_s} to join ...", 1, rgb['white'])
         win.blit(text, (100, 300))
 
+    elif game._finished:
+        font = pygame.font.SysFont("comicsans", 60)
+        points = game._finished
+        if points < 0:
+            s = 'YOU LOSE'
+        else:
+            if points == 25:
+                s = 'YOU WON!'
+            else:
+                s = f'Game eded: total points: {points}'
+        # s += '\n\nClick to play again'
+        text = font.render(s, 1, rgb['white'])
+        win.blit(text, (100, 300))
+
     else:
         font = pygame.font.SysFont("comicsans", 16)
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr, btns_go_back = game_buttons(
-            nb_players=nb_players, player = p)
+            nb_players=nb_players, player=p)
 
-        #display player number
+        # display player number
         your_player = f"You are Player {p+1}"
         font = pygame.font.SysFont("comicsans", 40)
         your_player_text = font.render(your_player, 1, rgb['black'])
         win.blit(your_player_text, (1050, 750))
 
-        #print remaining lives and clues
+        # print remaining lives and clues
         lives_remaining = f"Lives: {game.lifes}"
         clues_remaining = f"Clues: {game.clues}"
         font = pygame.font.SysFont("comicsans", 40)
@@ -75,7 +89,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         if game.current_player.index == p:
 
             if (stage_of_action == 0) and (action == "none"):
-                if game.clues>0:
+                if game.clues > 0:
                     for btn in btns_action:
                         btn.draw(win)
                 else:
@@ -178,7 +192,7 @@ def main(net, player):
                                     move.append([int(btn.text[-1]) - 1])
                                     stage_of_action += 1
                             if btns_go_back[0].click(pos):
-                                stage_of_action=0
+                                stage_of_action = 0
                                 move[0] = "none"
 
                         else:
@@ -190,7 +204,7 @@ def main(net, player):
                                     move = ['none']
 
                             if btns_go_back[0].click(pos):
-                                stage_of_action=0
+                                stage_of_action = 0
                                 move[0] = "none"
 
                     elif stage_of_action == 2:
@@ -209,7 +223,7 @@ def main(net, player):
                                 move = ["none"]
 
                         if btns_go_back[1].click(pos):
-                            stage_of_action=1
+                            stage_of_action = 1
 
 
 def redrawMenuWindow(menu_type, avail_games=None):
@@ -269,7 +283,7 @@ def menu_screen():
         games = net.send_data(to_get)
         # print("games:",games)
         btns = redrawMenuWindow(menu_type, games)
-        btn_info = None
+        btn_info = ''
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

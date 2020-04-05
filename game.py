@@ -17,10 +17,12 @@ class Hanabi(object):
     # clues : int
     # lifes : int
 
-    def __init__(self, nb_players, seed=42):
+    def __init__(self, nb_players, id_game=0, seed=42):
         # Below is used in online games
         self._num_connections = 1  # a game is initialised when there is 1 connection
         self._ready = False
+        self._finished = None
+        self._id_game = id_game
 
         self.nb_players = nb_players
         self.round = 0
@@ -53,7 +55,7 @@ class Hanabi(object):
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
 
-        self.num_connections = 1 # only initialised when there is one connection
+        self.num_connections = 1  # only initialised when there is one connection
         self.ready = False
         self.most_recent_move = None
         self.most_recent_pickup = None
@@ -69,7 +71,8 @@ class Hanabi(object):
     def check_endgame(self):
         if self.lifes == 0:
             print("YOU LOSE")
-            exit()
+            self._finished = -1
+            # exit()
 
         if len(self.stack) == 0 and self._endgame_count > 0:
             self._endgame_count -= 1
@@ -80,7 +83,8 @@ class Hanabi(object):
                 print("CONGRATULATIONS, YOU WON!")
             else:
                 print(f'Total points: {points}')
-            exit()
+            # exit()
+            self._finished = points
 
         return None
 
@@ -158,7 +162,7 @@ class Hanabi(object):
                 move[0], card=card1)
             if next:
                 self.next_player()
-                self.most_recent_move = [move[0],card1]
+                self.most_recent_move = [move[0], card1]
         else:
             to_player = move[1][0]
             info = move[1][1]
