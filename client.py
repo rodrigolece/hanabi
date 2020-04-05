@@ -36,7 +36,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
             if points == 25:
                 s = 'YOU WON!'
             else:
-                s = f'Game eded: total points: {points}'
+                s = f'Game ended with total points: {points}'
         # s += '\n\nClick to play again'
         text = font.render(s, 1, rgb['white'])
         win.blit(text, (100, 300))

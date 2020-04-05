@@ -146,7 +146,9 @@ def threaded_client(conn, client_address):
             game.update_table(data)
             if game._finished:
                 game_pool.pop(game._id_game, None)
-                players_connected_to_game.pop(game._id_game)
+                players_connected_to_game.pop(game._id_game, None)
+                ips_p_nbrs.pop(game._id_game, None)
+                #to do: get rid of ips_p_nbrs dictionary for that game
 
             try:
                 # conn.sendall(pickle.dumps(game))
