@@ -124,7 +124,12 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         if game.most_recent_move == None:
             prevMoveString = "Awaiting first move"
         elif (game.current_player.index - 1) % game.nb_players == p:
-            prevMoveString = "You went last"
+            if game.most_recent_move[0] == 'hint':
+                prevMoveString = f"You gave a hint to player {game.most_recent_move[1][0] + 1} about cards which are {game.most_recent_move[1][1]}"
+            elif game.most_recent_move[0] == 'play':
+                prevMoveString = f"You played a {game.most_recent_move[1].colour} {game.most_recent_move[1].number}"
+            elif game.most_recent_move[0] == 'discard':
+                prevMoveString = f"You discarded a {game.most_recent_move[1].colour} {game.most_recent_move[1].number}"
         else:
 
             if game.most_recent_move[0] == 'hint':

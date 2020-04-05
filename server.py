@@ -163,8 +163,8 @@ def threaded_client(conn, client_address):
         # Wait for player to come back
         address_list = players_connected_to_game[game._id_game]
         if client_address in address_list:
-            address_list.remove(client_addr)
-        nb_connected = len(players_connected_to_game[game._id_game])
+            address_list.remove(client_address)
+        nb_connected = len(address_list)
         game_pool[game._id_game]._num_connections = nb_connected  # -= 1?
         if nb_connected != game_pool[game._id_game].nb_players:
             # TODO: I think this can be done immediately right? no if statement
