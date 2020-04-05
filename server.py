@@ -95,7 +95,7 @@ def threaded_client(conn, client_address):
                 game_pool[id_new_game] = game
                 players_connected_to_game[id_new_game] = [client_address]
 
-                ips_p_nbrs[id_new_game] = {client_address: p_nbr}
+                ips_p_nbrs[id_new_game] = {client_address[0]: p_nbr}
                 print("ips_p_nbrs:", ips_p_nbrs)
                 id_game = id_new_game
                 id_new_game += 1
@@ -110,14 +110,14 @@ def threaded_client(conn, client_address):
                     # below should have the goal of making sure  there are no problems with two different clients choosing a agme with 1 spot left at roughly the same time
                     if nb_connected < game.nb_players:
                         print("client_adress:", client_address)
-                        if client_address in ips_p_nbrs[id_game]:
+                        if client_address[0] in ips_p_nbrs[id_game]:
                             print(
                                 f'Re-adding {client_address} to game {id_game}')
                             players_connected_to_game[id_game].append(
                                 client_address)
                             game._num_connections = len(
                                 players_connected_to_game[id_game])
-                            p_nbr = ips_p_nbrs[id_game][client_address]
+                            p_nbr = ips_p_nbrs[id_game][client_address[0]]
                         elif len(ips_p_nbrs[id_game]) < game.nb_players:
                             print(f'Adding {client_address} to game {id_game}')
                             players_connected_to_game[id_game].append(
@@ -125,7 +125,7 @@ def threaded_client(conn, client_address):
                             game._num_connections = len(
                                 players_connected_to_game[id_game])
                             p_nbr = nb_connected  # player number
-                            ips_p_nbrs[id_game][client_address] = p_nbr
+                            ips_p_nbrs[id_game][client_address[0]] = p_nbr
                             print("ips_p_nbrs:", ips_p_nbrs)
                         else:
                             send_data(conn, "choose_again")
