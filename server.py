@@ -77,10 +77,15 @@ def threaded_client(conn, client_address):
         elif isinstance(data, str):
             if data == "get_avail_games":
                 # conn.sendall(pickle.dumps(game_pool))
-                send_data(conn, game_pool)
+                avail_game_pool = {}
+                for x in game_pool:
+                    if game_pool[x]._num_connections < game_pool[x].nb_players:
+                        avail_game_pool[x] = game_pool[x]
+                # send_data(conn, game_pool)
+                send_data(conn, avail_game_pool)
 
             elif data.startswith('start'):
-                print("client_adress:", client_address[0])
+                print("client_adress:", client_address)
                 nb_players = int(data[-1])
                 print(
                     f'Creating new game for {nb_players} players. ID: {id_new_game}')
@@ -90,7 +95,7 @@ def threaded_client(conn, client_address):
                 game_pool[id_new_game] = game
                 players_connected_to_game[id_new_game] = [client_address]
 
-                ips_p_nbrs[id_new_game] = {client_address[0]: p_nbr}
+                ips_p_nbrs[id_new_game] = {client_address: p_nbr}
                 print("ips_p_nbrs:", ips_p_nbrs)
                 id_game = id_new_game
                 id_new_game += 1
@@ -105,14 +110,14 @@ def threaded_client(conn, client_address):
                     # below should have the goal of making sure  there are no problems with two different clients choosing a agme with 1 spot left at roughly the same time
                     if nb_connected < game.nb_players:
                         print("client_adress:", client_address)
-                        if client_address[0] in ips_p_nbrs[id_game]:
+                        if client_address in ips_p_nbrs[id_game]:
                             print(
                                 f'Re-adding {client_address} to game {id_game}')
                             players_connected_to_game[id_game].append(
                                 client_address)
                             game._num_connections = len(
                                 players_connected_to_game[id_game])
-                            p_nbr = ips_p_nbrs[id_game][client_address[0]]
+                            p_nbr = ips_p_nbrs[id_game][client_address]
                         elif len(ips_p_nbrs[id_game]) < game.nb_players:
                             print(f'Adding {client_address} to game {id_game}')
                             players_connected_to_game[id_game].append(
@@ -120,7 +125,7 @@ def threaded_client(conn, client_address):
                             game._num_connections = len(
                                 players_connected_to_game[id_game])
                             p_nbr = nb_connected  # player number
-                            ips_p_nbrs[id_game][client_address[0]] = p_nbr
+                            ips_p_nbrs[id_game][client_address] = p_nbr
                             print("ips_p_nbrs:", ips_p_nbrs)
                         else:
                             send_data(conn, "choose_again")
@@ -165,11 +170,14 @@ def threaded_client(conn, client_address):
         if client_address in address_list:
             address_list.remove(client_address)
         nb_connected = len(address_list)
-        game_pool[game._id_game]._num_connections = nb_connected  # -= 1?
-        if nb_connected != game_pool[game._id_game].nb_players:
+        game_pool[game._id_game]._num_connections = nb_connected
+        if nb_connected == 0:
+            game_pool.pop(game._id_game, None)
+            players_connected_to_game.pop(game._id_game, None)
+            ips_p_nbrs.pop(game._id_game, None)
+        elif nb_connected != game_pool[game._id_game].nb_players:
             # TODO: I think this can be done immediately right? no if statement
             game_pool[game._id_game]._ready = False
-
 
 game_pool = {}
 players_connected_to_game = {}

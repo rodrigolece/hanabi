@@ -133,6 +133,10 @@ def render_text_list(lines, font, colour=(255, 255, 255)):
 
     return surface
 
+def pos_from_center(x_center, y_center, width, height):
+    x = x_center - (width/2)
+    y = y_center - (height/2)
+    return x,y
 
 def game_buttons(nb_players=4, player=0):
     rules_dict = dict([(2, 5), (3, 5), (4, 4), (5, 4)])
@@ -204,15 +208,16 @@ class PygamePlayer(object):
 
         return None
 
-    def draw(self, win, pos, fs=50, space=100):
+    def draw(self, win, pos, fs=50, space=140):
         left, top = pos
 
         font = pygame.font.SysFont("comicsans", 20)
         text = font.render(f"Player {self.player.index + 1}", 1, (0,0,0))
-        win.blit(text, (left, top - 25))
+        win.blit(text, (left, top - 18))
 
         for i, card in enumerate(self.player.hand):
-            top_card = top + space * i
+            # top_card = top + space * i
+            left_card = left + space * i
 
             info_nbr = self.player.hand_number_info[card]
             s = info_nbr if info_nbr else '--'
@@ -222,11 +227,14 @@ class PygamePlayer(object):
 
             if info_clr or info_nbr:
                 hint_c = PygameCard(Card(c, s), hidden=False)
-                hint_c.draw(win, (left + 60, top_card),
+                # hint_c.draw(win, (left + 60, top_card),
+                #             fs=fs, color=rgb['white'])
+                hint_c.draw(win, (left_card + 60, top),
                             fs=fs, color=rgb['white'])
 
             pc = PygameCard(card, hidden=self._hidden)
-            pc.draw(win, (left, top_card), fs=fs)
+            # pc.draw(win, (left, top_card), fs=fs)
+            pc.draw(win, (left_card, top), fs=fs)
 
         return None
 

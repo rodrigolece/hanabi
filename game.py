@@ -59,6 +59,7 @@ class Hanabi(object):
         self.ready = False
         self.most_recent_move = None
         self.most_recent_pickup = None
+        self.most_recent_move_life_lost = False
 
     def __str__(self):
         s = f"""
@@ -126,18 +127,21 @@ class Hanabi(object):
         if action == 'play':
             card = out
             play_succesful = self.table.play_card(card)
+            self.most_recent_move_life_lost = False
             if self._endgame_flag is False:
                 self.deal_cards(self.current_player, 1)
 
             if play_succesful is False:
                 print("Life lost.")
                 self.lifes -= 1
+                self.most_recent_move_life_lost = True
                 self.table.discard_card(card)
 
         elif action == 'discard':
             card = out
             self.table.discard_card(card)
             self.clues += 1
+            self.most_recent_move_life_lost = False
             if self._endgame_flag is False:
                 self.deal_cards(self.current_player, 1)
 
@@ -149,6 +153,7 @@ class Hanabi(object):
                 to_player, info = out
                 to_player.receive_hint(info)
                 self.clues -= 1
+                self.most_recent_move_life_lost = False
 
         self.check_endgame()
 

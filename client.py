@@ -4,6 +4,7 @@ import pickle
 
 from network import Network
 from util import *
+from util import pos_from_center  #Why does this not import automatically???
 
 import pygame
 pygame.font.init()
@@ -23,9 +24,15 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         font = pygame.font.SysFont("comicsans", 60)
         diff = game.nb_players - game._num_connections
         other_s = 'other' if diff == 1 else 'others'
-        text = font.render(
-            f"Waiting for {diff} {other_s} to join ...", 1, rgb['white'])
-        win.blit(text, (100, 300))
+        s = f"Waiting for {diff} {other_s} to join ..."
+        s_width, s_height = font.size(s)
+        posx, posy = pos_from_center(window_width/2, window_height/4, s_width, s_height)
+        text = font.render(s, 1, rgb['black'])
+        win.blit(text, (posx, posy))
+        # posx, posy = pos_from_center(window_width/2, window_height/2, 200, 150)
+        # btn_exit = Button("Close game", posx, posy, width = 200, height = 150)
+        # btn_exit.draw(win)
+
 
     elif game._finished:
         font = pygame.font.SysFont("comicsans", 60)
@@ -73,7 +80,8 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
             if player.index == p:
                 continue
             pc = PygamePlayer(player, hidden=False)
-            pos = 200 + 150 * i, 50  # Style here
+            # pos = 200 + 150 * i, 50  # Style here
+            pos = 50, 50 + 100*(1+i)  # Style here
             pc.draw(win, pos)
             i += 1
 
@@ -117,8 +125,8 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         else:
             font = pygame.font.SysFont("comicsans", 60)
             text = font.render(
-                f"Player {game.current_player.index+1}'s turn...", 1, rgb['white'])
-            win.blit(text, (150, 750))
+                f"Player {game.current_player.index+1}'s turn...", 1, rgb['black'])
+            win.blit(text, (50, 750))
 
         # print most recent move
         if game.most_recent_move == None:
@@ -142,6 +150,13 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         font = pygame.font.SysFont("comicsans", 30)
         prevMoveText = font.render(prevMoveString, 1, rgb['black'])
         win.blit(prevMoveText, (50, 550))
+
+        #print lost life message:
+        if game.most_recent_move_life_lost:
+            font = pygame.font.SysFont("comicsans", 40)
+            s = "You lost a life!"
+            text = font.render(s, 1, rgb['red'])
+            win.blit(text, (1200, 800))
 
     pygame.display.update()
 
@@ -235,8 +250,13 @@ def redrawMenuWindow(menu_type, avail_games=None):
 
     win.fill(rgb['background'])
     if menu_type == 'main':
-        btn_start = infoButton('START NEW GAME', 300, 450,
-                               'start-game', width=400, fs=30)
+
+        btn_width = 400
+        btn_height = 100
+        posx, posy = pos_from_center(window_width/2, window_height/2, btn_width, btn_height)
+
+        btn_start = infoButton('START NEW GAME', posx, posy,
+                               'start-game', width=btn_width, height = btn_height, fs=30)
         btns = [btn_start]
         for i, game_id in enumerate(avail_games.keys()):
             btn_join = infoButton(f'JOIN GAME {game_id}: {avail_games[game_id].nb_players} player', 50 + 400 * i, 600,
@@ -245,10 +265,18 @@ def redrawMenuWindow(menu_type, avail_games=None):
 
     elif menu_type == 'start-game':
         font = pygame.font.SysFont("comicsans", 60)
-        text = font.render("Select number of players:", 1, rgb['white'])
-        win.blit(text, (100, 300))
+        s = "Select number of players:"
+        s_width, s_height = font.size(s)
+        text = font.render(s, 1, rgb['black'])
+        posx, posy = pos_from_center(window_width/2, window_height/4, s_width, s_height)
+        win.blit(text, (posx, posy))
 
-        btns = [infoButton(str(n), 50 + 200 * i, 450, f'start-{n}')
+        btn_width = 150
+        btn_height = 100
+        gap = 50
+        btn_array_width = 4*btn_width + 3*gap
+        posx, posy = pos_from_center(window_width/2, window_height/2, btn_array_width, btn_height)
+        btns = [infoButton(str(n), posx + i*(btn_width+gap), posy, f'start-{n}')
                 for i, n in enumerate(range(2, 6))]
 
     # elif menu_type == 'join-game':
