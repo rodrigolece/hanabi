@@ -230,7 +230,7 @@ class PygamePlayer(object):
                 # hint_c.draw(win, (left + 60, top_card),
                 #             fs=fs, color=rgb['white'])
                 hint_c.draw(win, (left_card + 60, top),
-                            fs=fs, color=rgb['white'])
+                            fs=fs, color=(135,135,135))
 
             pc = PygameCard(card, hidden=self._hidden)
             # pc.draw(win, (left, top_card), fs=fs)
