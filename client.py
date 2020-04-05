@@ -27,6 +27,20 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
             f"Waiting for {diff} {other_s} to join ...", 1, rgb['white'])
         win.blit(text, (100, 300))
 
+    elif game._finished:
+        font = pygame.font.SysFont("comicsans", 60)
+        points = game._finished
+        if points < 0:
+            s = 'YOU LOSE'
+        else:
+            if points == 25:
+                s = 'YOU WON!'
+            else:
+                s = f'Game eded: total points: {points}'
+        # s += '\n\nClick to play again'
+        text = font.render(s, 1, rgb['white'])
+        win.blit(text, (100, 300))
+
     else:
         font = pygame.font.SysFont("comicsans", 16)
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr, btns_go_back = game_buttons(
@@ -269,7 +283,7 @@ def menu_screen():
         games = net.send_data(to_get)
         # print("games:",games)
         btns = redrawMenuWindow(menu_type, games)
-        btn_info = None
+        btn_info = ''
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
