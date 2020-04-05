@@ -79,7 +79,7 @@ def threaded_client(conn, client_address):
                 send_data(conn, game_pool)
 
             elif data.startswith('start'):
-                print("client_adress:",client_address[0])
+                print("client_adress:", client_address[0])
                 nb_players = int(data[-1])
                 print(
                     f'Creating new game for {nb_players} players. ID: {id_new_game}')
