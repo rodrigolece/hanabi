@@ -29,12 +29,15 @@ class Table(object):
         stack_name = f'{card.colour}_stack'
         stack = getattr(self, stack_name, None)
         play_succesful = False
+        stack_finished = False
 
         if len(stack) > 0:  # the stack has cards
             top_card = stack[-1]
             if card.number == top_card.number + 1:
                 stack.append(card)
                 play_succesful = True
+                if card.number == 5:
+                    stack_finished = True
             # else not needed because play_succesful is False
         else:
             if card.number == 1:
@@ -52,7 +55,7 @@ class Table(object):
                     self.useless_discarded_stack.append(
                         self.useful_discarded_stack.pop(i))
 
-        return play_succesful
+        return play_succesful, stack_finished
 
     def discard_card(self, card):
         stack_name = f'{card.colour}_stack'

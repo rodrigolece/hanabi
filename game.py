@@ -126,7 +126,7 @@ class Hanabi(object):
 
         if action == 'play':
             card = out
-            play_succesful = self.table.play_card(card)
+            play_succesful, stack_finished = self.table.play_card(card)
             self.most_recent_move_life_lost = False
             if self._endgame_flag is False:
                 self.deal_cards(self.current_player, 1)
@@ -136,6 +136,9 @@ class Hanabi(object):
                 self.lifes -= 1
                 self.most_recent_move_life_lost = True
                 self.table.discard_card(card)
+
+            if stack_finished:
+                self.clues += 1
 
         elif action == 'discard':
             card = out

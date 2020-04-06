@@ -4,7 +4,7 @@ import pickle
 
 from network import Network
 from util import *
-from util import pos_from_center  #Why does this not import automatically???
+from util import pos_from_center  # Why does this not import automatically???
 
 import pygame
 pygame.font.init()
@@ -20,21 +20,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
 
     win.fill(rgb['background'])
 
-    if game._ready is False:
-        font = pygame.font.SysFont("comicsans", 60)
-        diff = game.nb_players - game._num_connections
-        other_s = 'other' if diff == 1 else 'others'
-        s = f"Waiting for {diff} {other_s} to join ..."
-        s_width, s_height = font.size(s)
-        posx, posy = pos_from_center(window_width/2, window_height/4, s_width, s_height)
-        text = font.render(s, 1, rgb['black'])
-        win.blit(text, (posx, posy))
-        # posx, posy = pos_from_center(window_width/2, window_height/2, 200, 150)
-        # btn_exit = Button("Close game", posx, posy, width = 200, height = 150)
-        # btn_exit.draw(win)
-
-
-    elif game._finished:
+    if game._finished:
         font = pygame.font.SysFont("comicsans", 60)
         points = game._finished
         if points < 0:
@@ -45,9 +31,25 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
             else:
                 s = f'Game ended with total points: {points}'
         # s += '\n\nClick to play again'
-        text = font.render(s, 1, rgb['white'])
-        win.blit(text, (100, 300))
+        s_width, s_height = font.size(s)
+        posx, posy = pos_from_center(
+            window_width / 2, window_height / 2, s_width, s_height)
+        text = font.render(s, 1, rgb['red'])
+        win.blit(text, (posx, posy))
 
+    if game._ready is False:
+        font = pygame.font.SysFont("comicsans", 60)
+        diff = game.nb_players - game._num_connections
+        other_s = 'other' if diff == 1 else 'others'
+        s = f"Waiting for {diff} {other_s} to join ..."
+        s_width, s_height = font.size(s)
+        posx, posy = pos_from_center(
+            window_width / 2, window_height / 4, s_width, s_height)
+        text = font.render(s, 1, rgb['black'])
+        win.blit(text, (posx, posy))
+        # posx, posy = pos_from_center(window_width/2, window_height/2, 200, 150)
+        # btn_exit = Button("Close game", posx, posy, width = 200, height = 150)
+        # btn_exit.draw(win)
     else:
         font = pygame.font.SysFont("comicsans", 16)
         btns_action, btns_card, btns_player, btns_hint_clr, btns_hint_nbr, btns_go_back = game_buttons(
@@ -84,7 +86,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
                 continue
             pc = PygamePlayer(player, hidden=False)
             # pos = 200 + 150 * i, 50  # Style here
-            pos = 50, 50 + 100*(1+i)  # Style here
+            pos = 50, 50 + 100 * (1 + i)  # Style here
             pc.draw(win, pos)
             i += 1
 
@@ -154,7 +156,7 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         prevMoveText = font.render(prevMoveString, 1, rgb['black'])
         win.blit(prevMoveText, (50, 550))
 
-        #print lost life message:
+        # print lost life message:
         if game.most_recent_move_life_lost:
             font = pygame.font.SysFont("comicsans", 40)
             s = "You lost a life!"
@@ -256,10 +258,11 @@ def redrawMenuWindow(menu_type, avail_games=None):
 
         btn_width = 400
         btn_height = 100
-        posx, posy = pos_from_center(window_width/2, window_height/2, btn_width, btn_height)
+        posx, posy = pos_from_center(
+            window_width / 2, window_height / 2, btn_width, btn_height)
 
         btn_start = infoButton('START NEW GAME', posx, posy,
-                               'start-game', width=btn_width, height = btn_height, fs=30)
+                               'start-game', width=btn_width, height=btn_height, fs=30)
         btns = [btn_start]
         for i, game_id in enumerate(avail_games.keys()):
             btn_join = infoButton(f'JOIN GAME {game_id}: {avail_games[game_id].nb_players} player', 50 + 400 * i, 600,
@@ -271,15 +274,17 @@ def redrawMenuWindow(menu_type, avail_games=None):
         s = "Select number of players:"
         s_width, s_height = font.size(s)
         text = font.render(s, 1, rgb['black'])
-        posx, posy = pos_from_center(window_width/2, window_height/4, s_width, s_height)
+        posx, posy = pos_from_center(
+            window_width / 2, window_height / 4, s_width, s_height)
         win.blit(text, (posx, posy))
 
         btn_width = 150
         btn_height = 100
         gap = 50
-        btn_array_width = 4*btn_width + 3*gap
-        posx, posy = pos_from_center(window_width/2, window_height/2, btn_array_width, btn_height)
-        btns = [infoButton(str(n), posx + i*(btn_width+gap), posy, f'start-{n}')
+        btn_array_width = 4 * btn_width + 3 * gap
+        posx, posy = pos_from_center(
+            window_width / 2, window_height / 2, btn_array_width, btn_height)
+        btns = [infoButton(str(n), posx + i * (btn_width + gap), posy, f'start-{n}')
                 for i, n in enumerate(range(2, 6))]
 
     # elif menu_type == 'join-game':
