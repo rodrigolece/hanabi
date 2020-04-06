@@ -7,15 +7,9 @@ import sys
 class Network:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-<<<<<<< HEAD
-        # self.server = "82.14.199.227"  # TODO: remove once we share
-        # self.server = "127.0.0.1"
-        self.server = "192.168.0.15"
-=======
         self.server = "82.14.199.227"  # TODO: remove once we share
         # self.server = "127.0.0.1"
         # self.server = "192.168.0.15"
->>>>>>> 2f24316f72106bef96899dfab7b7e64e982a2e5c
         self.port = 5555
         self.addr = (self.server, self.port)
         # self.p = self.connect()

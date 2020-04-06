@@ -75,9 +75,6 @@ class Hanabi(object):
             self._finished = -1
             # exit()
 
-        if len(self.stack) == 0 and self._endgame_count > 0:
-            self._endgame_count -= 1
-
         if self._endgame_count == 0:
             points = self.table.total_points()
             if points == 25:
@@ -86,6 +83,9 @@ class Hanabi(object):
                 print(f'Total points: {points}')
             # exit()
             self._finished = points
+
+        if len(self.stack) == 0 and self._endgame_count > 0:
+            self._endgame_count -= 1
 
         return None
 
@@ -137,13 +137,14 @@ class Hanabi(object):
                 self.most_recent_move_life_lost = True
                 self.table.discard_card(card)
 
-            if stack_finished:
+            if stack_finished and (self.clues<8):
                 self.clues += 1
 
         elif action == 'discard':
             card = out
             self.table.discard_card(card)
-            self.clues += 1
+            if self.clues<8:
+                self.clues += 1
             self.most_recent_move_life_lost = False
             if self._endgame_flag is False:
                 self.deal_cards(self.current_player, 1)
