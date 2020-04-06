@@ -5,8 +5,8 @@ from struct import pack, unpack
 
 from game import Hanabi
 
-# ip_address = "192.168.0.15"
-ip_address = "127.0.0.1"
+ip_address = "192.168.0.15"
+# ip_address = "127.0.0.1"
 port = 5555
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -153,7 +153,7 @@ def threaded_client(conn, client_address):
                 game_pool.pop(game._id_game, None)
                 players_connected_to_game.pop(game._id_game, None)
                 ips_p_nbrs.pop(game._id_game, None)
-                #to do: get rid of ips_p_nbrs dictionary for that game
+                # to do: get rid of ips_p_nbrs dictionary for that game
 
             try:
                 # conn.sendall(pickle.dumps(game))
