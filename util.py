@@ -15,7 +15,7 @@ rgb = {"red": (255, 0, 0),
        "white": (255, 255, 255),
        "black": (0, 0, 0),
        "card": (142, 213, 200),
-       "useless": (255, 176, 215),
+       "darkgrey": (135, 135, 135),
        "background": (220, 220, 220)}
 
 
@@ -230,7 +230,7 @@ class PygamePlayer(object):
                 # hint_c.draw(win, (left + 60, top_card),
                 #             fs=fs, color=rgb['white'])
                 hint_c.draw(win, (left_card + 60, top),
-                            fs=fs, color=(135,135,135))
+                            fs=fs, color=rgb["darkgrey"])
 
             pc = PygameCard(card, hidden=self._hidden)
             # pc.draw(win, (left, top_card), fs=fs)
@@ -273,7 +273,7 @@ class PygameTable():
         # The useless_discarded_stack
         rect = *pos_useless, 500, 300  # Style here
         self._print_discard_stack(self.table.useless_discarded_stack,
-                                  win, rect, rgb['useless'], fs - 15)
+                                  win, rect, rgb["darkgrey"], fs - 15)
 
     def _print_discard_stack(self, stack, win, rect, clr, fs):
         left, top, width, height = rect

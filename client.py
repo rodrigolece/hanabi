@@ -59,14 +59,17 @@ def redrawWindow(win, game, p, stage_of_action, action, nb_players=4):
         your_player_text = font.render(your_player, 1, rgb['black'])
         win.blit(your_player_text, (1050, 750))
 
-        # print remaining lives and clues
+        # print remaining lives and clues nad cards in deck
         lives_remaining = f"Lives: {game.lifes}"
         clues_remaining = f"Clues: {game.clues}"
+        cards_in_deck_remaining = f"Cards left in deck: {len(game.stack)}"
         font = pygame.font.SysFont("comicsans", 40)
         lives_remaining_text = font.render(lives_remaining, 1, rgb['black'])
         clues_remaining_text = font.render(clues_remaining, 1, rgb['black'])
+        cards_in_deck_remaining_text = font.render(cards_in_deck_remaining, 1, rgb['black'])
         win.blit(lives_remaining_text, (1050, 800))
         win.blit(clues_remaining_text, (1050, 850))
+        win.blit(cards_in_deck_remaining_text, (1050, 900))
 
         # print your own hand:
         pos = 50, 50  # Style here
