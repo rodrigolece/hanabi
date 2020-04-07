@@ -4,28 +4,37 @@ from tabulate import tabulate
 
 class Player(object):
     def __init__(self, index):
-        self.index = index
+        self.index = index  # player number
         self.hand = []  # how do we sort the hand?
         self.hand_colour_info = {}
         self.hand_number_info = {}
-
         return None
 
     def __str__(self):
-        s = f'\nPlayer {self.index}:\n'
+        s = f'Player {self.index}:\n'
         tab = []
         for c in self.hand:
             tab.append([c.colour + ' ' + str(c.number),
                         str(self.hand_colour_info[c]).replace('None', '-')
                         + ' ' +
                         str(self.hand_number_info[c]).replace('None', '-')])
-        s = s + tabulate(tab, headers=('hand', 'info known'))
+        s = s + tabulate(tab, headers=('hand', 'info'))
+        return s
+
+    def info_string(self):
+        s = f'Player {self.index}:\n'
+        tab = []
+        for c in self.hand:
+            tab.append([str(self.hand_colour_info[c]).replace('None', '-')
+                        + ' ' +
+                        str(self.hand_number_info[c]).replace('None', '-')])
+        s = s + tabulate(tab, headers=('info known'))
         return s
 
     def decide_action(self, action, **kwargs):
         pass
 
-    def sort_hand(self, from_num, to_num):
+    def move_card_in_hand(self, from_num, to_num):
         # This function will only sort if it is valid, and will not thrown an
         # error if invalid
         n = len(self.hand)
@@ -66,5 +75,16 @@ class Player(object):
             for card in self.hand:
                 if card.number == info:
                     self.hand_number_info[card] = info
+
+        self.reorder_hand()
+
+        return None
+
+    def reorder_hand(self):
+        current_pos = 0
+        for i, card in enumerate(self.hand):
+            if self.hand_colour_info[card] or self.hand_number_info[card]:
+                self.move_card_in_hand(i, current_pos)
+                current_pos += 1
 
         return None

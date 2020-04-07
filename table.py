@@ -29,12 +29,15 @@ class Table(object):
         stack_name = f'{card.colour}_stack'
         stack = getattr(self, stack_name, None)
         play_succesful = False
+        stack_finished = False
 
         if len(stack) > 0:  # the stack has cards
             top_card = stack[-1]
             if card.number == top_card.number + 1:
                 stack.append(card)
                 play_succesful = True
+                if card.number == 5:
+                    stack_finished = True
             # else not needed because play_succesful is False
         else:
             if card.number == 1:
@@ -48,7 +51,7 @@ class Table(object):
                     self.useful_discarded_stack.remove(d)
                     self.useless_discarded_stack.append(d)
 
-        return play_succesful
+        return play_succesful, stack_finished
 
     def discard_card(self, card):
         stack_name = f'{card.colour}_stack'
@@ -92,13 +95,20 @@ class Table(object):
                 useful[i][j] = '0' if not useful[i][j] else useful[i][j]
                 useless[i][j] = '0' if not useless[i][j] else useless[i][j]
 
-        print("\nUseful discard pile:\n")
-        print(tabulate(useful, headers=colours).replace('0', '.'))
+        # print("\nUseful discard pile:\n")
+        # print(tabulate(useful, headers=colours).replace('0', '.'))
+        useful_string = tabulate(useful, headers=colours).replace('0', '.')
 
+<<<<<<< HEAD
         print("\nUseless discard pile:\n")
         print(tabulate(useless, headers=colours).replace('0', '.'))
+=======
+        # print("\nUseless discard pile:")
+        # print(tabulate(useless, headers=colours).replace('0', '.'))
+        useless_string = tabulate(useless, headers=colours).replace('0', '.')
+>>>>>>> server-hosting
 
-        return None
+        return useful_string, useless_string
 
     def print_stacks(self):
         mat = np.zeros((5, 5), dtype=int)
