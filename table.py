@@ -99,14 +99,9 @@ class Table(object):
         # print(tabulate(useful, headers=colours).replace('0', '.'))
         useful_string = tabulate(useful, headers=colours).replace('0', '.')
 
-<<<<<<< HEAD
-        print("\nUseless discard pile:\n")
-        print(tabulate(useless, headers=colours).replace('0', '.'))
-=======
         # print("\nUseless discard pile:")
         # print(tabulate(useless, headers=colours).replace('0', '.'))
         useless_string = tabulate(useless, headers=colours).replace('0', '.')
->>>>>>> server-hosting
 
         return useful_string, useless_string
 
