@@ -137,13 +137,13 @@ class Hanabi(object):
                 self.most_recent_move_life_lost = True
                 self.table.discard_card(card)
 
-            if stack_finished and (self.clues<8):
+            if stack_finished and (self.clues < 8):
                 self.clues += 1
 
         elif action == 'discard':
             card = out
             self.table.discard_card(card)
-            if self.clues<8:
+            if self.clues < 8:
                 self.clues += 1
             self.most_recent_move_life_lost = False
             if self._endgame_flag is False:
