@@ -5,7 +5,7 @@ from card import Card
 
 
 __all__ = ['rgb',
-           'Button', 'infoButton', 'game_buttons',
+           'Button', 'infoButton', 'game_buttons', 'pos_from_center',
            'PygamePlayer', 'PygameTable']
 
 rgb = {"red": (255, 0, 0),
@@ -68,75 +68,11 @@ class infoButton(Button):
         return clicked
 
 
-def wrap_text(text, font, width):
-    """
-    from : https://github.com/ColdrickSotK/yamlui/blob/master/yamlui/util.py#L82-L143
-    Wrap text to fit inside a given width when rendered.
-    :param text: The text to be wrapped.
-    :param font: The font the text will be rendered in.
-    :param width: The width to wrap to.
-    """
-    # text_lines = text.replace('\t', '    ').split('\n')
-    text_lines = text.split('\n')
-
-    if width is None or width == 0:
-        return text_lines
-
-    wrapped_lines = []
-    for line in text_lines:
-        line = line.rstrip() + ' '
-        if line == ' ':
-            wrapped_lines.append(line)
-            continue
-
-        # Get the leftmost space ignoring leading whitespace
-        start = len(line) - len(line.lstrip())
-        start = line.index(' ', start)
-        while start + 1 < len(line):
-            # Get the next potential splitting point
-            next = line.index(' ', start + 1)
-            if font.size(line[:next])[0] <= width:
-                start = next
-            else:
-                wrapped_lines.append(line[:start])
-                line = line[start + 1:]
-                start = line.index(' ')
-        line = line[:-1]
-        if line:
-            wrapped_lines.append(line)
-    return wrapped_lines
-
-
-def render_text_list(lines, font, colour=(255, 255, 255)):
-    """
-    from : https://github.com/ColdrickSotK/yamlui/blob/master/yamlui/util.py#L82-L143
-    Draw multiline text to a single surface with a transparent background.
-    Draw multiple lines of text in the given font onto a single surface
-    with no background colour, and return the result.
-    :param lines: The lines of text to render.
-    :param font: The font to render in.
-    :param colour: The colour to render the font in, default is white.
-    """
-    rendered = [font.render(line, True, colour).convert_alpha()
-                for line in lines]
-
-    line_height = font.get_linesize()
-    width = max(line.get_width() for line in rendered)
-    tops = [int(round(i * line_height)) for i in range(len(rendered))]
-    height = tops[-1] + font.get_height()
-
-    surface = pygame.Surface((width, height)).convert_alpha()
-    # surface.fill((0, 0, 0, 0))
-    surface.fill((128, 128, 128))
-    for y, line in zip(tops, rendered):
-        surface.blit(line, (0, y))
-
-    return surface
-
 def pos_from_center(x_center, y_center, width, height):
-    x = x_center - (width/2)
-    y = y_center - (height/2)
-    return x,y
+    x = x_center - (width / 2)
+    y = y_center - (height / 2)
+    return x, y
+
 
 def game_buttons(nb_players=4, player=0):
     rules_dict = dict([(2, 5), (3, 5), (4, 4), (5, 4)])
@@ -156,20 +92,22 @@ def game_buttons(nb_players=4, player=0):
                  for i in range(nb_in_hand)]
 
     # for player to give hint to
-    hint_players = [i for i in range(nb_players) if i!=player]
+    hint_players = [i for i in range(nb_players) if i != player]
     btns_player = [Button(f'Player {i+1}', x_offset + x_space * i, y_offset)
                    for i in hint_players]
 
     # go back button
 
-    btns_go_back = [infoButton("Go back", 570, 590, info="back_to_stage_0"), infoButton("Go back", 570, 590, info = "back_to_stage_0")]
+    btns_go_back = [infoButton("Go back", 570, 590, info="back_to_stage_0"), infoButton(
+        "Go back", 570, 590, info="back_to_stage_0")]
 
     btns_hint_clr = []
     btns_hint_nbr = []
 
     for i, clr in enumerate(['Red', 'Green', 'Yellow', 'White', 'Blue']):
         x = x_offset + x_space * i
-        btn_clr = Button(clr, x, y_offset, color=rgb[clr.lower()], fs=25, text_colour = "black")
+        btn_clr = Button(clr, x, y_offset,
+                         color=rgb[clr.lower()], fs=25, text_colour="black")
         btns_hint_clr.append(btn_clr)
 
         btn_nbr = Button(str(i + 1), x, y_offset + 100)
@@ -212,7 +150,7 @@ class PygamePlayer(object):
         left, top = pos
 
         font = pygame.font.SysFont("comicsans", 20)
-        text = font.render(f"Player {self.player.index + 1}", 1, (0,0,0))
+        text = font.render(f"Player {self.player.index + 1}", 1, (0, 0, 0))
         win.blit(text, (left, top - 18))
 
         for i, card in enumerate(self.player.hand):
