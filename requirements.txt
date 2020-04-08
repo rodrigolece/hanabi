@@ -1,0 +1,14 @@
+## Used but installed with python
+# pickle
+# socket
+# struct
+# argparse
+# socket
+# _thread
+# itertools
+# textwrap
+
+## Required
+tabulate>=0.8
+numpy>=1.17
+pygame==2.0.0.dev3
