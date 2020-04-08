@@ -5,7 +5,7 @@ from tabulate import tabulate
 class Player(object):
     def __init__(self, index):
         self.index = index  # player number
-        self.hand = []  # how do we sort the hand?
+        self.hand = [] 
         self.hand_colour_info = {}
         self.hand_number_info = {}
         return None
@@ -45,7 +45,6 @@ class Player(object):
         return None
 
     def play(self, card):
-        # card = self.hand[card_num]
         print("\nPlaying a {} {}".format(card.colour, card.number))
         self.hand.remove(card)
         del self.hand_colour_info[card]
@@ -54,7 +53,6 @@ class Player(object):
         return card
 
     def discard(self, card):
-        # card = self.hand[card_num]
         print("\nDiscarding a {} {}".format(card.colour, card.number))
         self.hand.remove(card)
         del self.hand_colour_info[card]

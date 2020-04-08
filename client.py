@@ -7,9 +7,6 @@ from util import *
 import pygame
 pygame.font.init()
 
-# win = pygame.display.set_mode((window_width, window_height))
-# pygame.display.set_caption("Hanabi")
-
 
 class Client(object):
     def __init__(self, ip_addr, port, window_width=1500, window_height=1000):
@@ -154,9 +151,7 @@ class Client(object):
                 window_width / 2, window_height / 4, s_width, s_height)
             text = font.render(s, 1, rgb['black'])
             win.blit(text, (posx, posy))
-            # posx, posy = pos_from_center(window_width/2, window_height/2, 200, 150)
-            # btn_exit = Button("Close game", posx, posy, width = 200, height = 150)
-            # btn_exit.draw(win)
+
         elif game._finished:
             self.gameWindow(game, p, stage_of_action,
                             action, nb_players=nb_players, game_ended=True)
@@ -172,8 +167,6 @@ class Client(object):
                     s = f'Game ended with total points: {points}'
             # s += '\n\nClick to play again'
             s_width, s_height = font.size(s)
-            # posx, posy = pos_from_center(
-            #     window_width / 2, window_height / 2, s_width, s_height)
             text = font.render(s, 1, rgb['red'])
             posx, posy = 50, 750  # + text.get_width(), 750 + text.get_height()
             win.blit(text, (posx, posy))
@@ -306,21 +299,6 @@ class Client(object):
             btns = [infoButton(str(n), posx + i * (btn_width + gap), posy, f'start-{n}')
                     for i, n in enumerate(range(2, 6))]
 
-        # elif menu_type == 'join-game':
-        #     font = pygame.font.SysFont("comicsans", 60)
-        #     text = font.render("Select number of players:", 1, rgb['white'])
-        #     win.blit(text, (100, 300))
-        #
-        #     btns = [infoButton(str(n), 50 + 200 * i, 450, f'join-{n}')
-        #             for i, n in enumerate(range(4))]
-
-        # elif menu_type == 'waiting':
-        #     btns = []  # no buttons in this screen
-        #
-        #     font = pygame.font.SysFont("comicsans", 60)
-        #     text = font.render("Waiting for others to join ...", 1, rgb['white'])
-        #     win.blit(text, (100, 300))
-
         for btn in btns:
             btn.draw(win)
 
@@ -338,9 +316,7 @@ class Client(object):
 
         while run:
             clock.tick(60)
-            # print("game not yet received")
             games = net.send_data(to_get)
-            # print("games:",games)
             btns = self.redrawMenuWindow(menu_type, games)
             btn_info = ''
 
@@ -359,14 +335,11 @@ class Client(object):
                         menu_type = btn_info
 
                     elif btn_info.startswith('start'):
-                        # net.send(btn_info)
                         player = net.send_data(btn_info)
-                        # player = 0
                         print("player received when joining:", player)
                         run = False
 
                     elif btn_info.startswith('join'):
-                        # reply = net.send(btn_info)
                         reply = net.send_data(btn_info)
                         if isinstance(reply, int):
                             player = reply

@@ -1,6 +1,5 @@
 
 import numpy as np
-from tabulate import tabulate
 
 
 class Table(object):
@@ -63,63 +62,5 @@ class Table(object):
             self.useful_discarded_stack.append(card)
         else:
             self.useless_discarded_stack.append(card)
-
-        return None
-
-    def print_discard_piles(self):
-        useful = np.zeros((5, 5), dtype=str).tolist()
-        useless = np.zeros((5, 5), dtype=str).tolist()
-
-        colours = ['red', 'blue', 'green', 'yellow', 'white']
-        map = dict(zip(colours, range(5)))
-
-        for card in self.useful_discarded_stack:
-            col = map[card.colour]
-            row = card.number - 1
-            s = str(card.number)
-            if useful[row][col]:  # if the entry is not empty, prepend comma
-                s = ',' + s
-            useful[row][col] += s
-
-        for card in self.useless_discarded_stack:
-            col = map[card.colour]
-            row = card.number - 1
-            s = str(card.number)
-            if useless[row][col]:
-                s = ',' + s
-            useless[row][col] += s
-
-        # Not elegant, but I insert zeros to replace below
-        for i in range(5):
-            for j in range(5):
-                useful[i][j] = '0' if not useful[i][j] else useful[i][j]
-                useless[i][j] = '0' if not useless[i][j] else useless[i][j]
-
-        # print("\nUseful discard pile:\n")
-        # print(tabulate(useful, headers=colours).replace('0', '.'))
-        useful_string = tabulate(useful, headers=colours).replace('0', '.')
-
-        # print("\nUseless discard pile:")
-        # print(tabulate(useless, headers=colours).replace('0', '.'))
-        useless_string = tabulate(useless, headers=colours).replace('0', '.')
-
-        return useful_string, useless_string
-
-    def print_stacks(self):
-        mat = np.zeros((5, 5), dtype=int)
-        colours = ['red', 'blue', 'green', 'yellow', 'white']
-
-        for i, c in enumerate(colours):
-            stack_name = f'{c}_stack'
-            stack = getattr(self, stack_name)
-            if len(stack) > 0:
-                top_card = stack[-1]
-                n = top_card.number
-                mat[:n, i] = range(1, n + 1)
-
-        tab = tabulate(mat, headers=colours).replace('0', '.')
-
-        print("\nCurrent stacks:\n")
-        print(tab)
 
         return None

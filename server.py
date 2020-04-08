@@ -18,16 +18,9 @@ print("Server listening, waiting for connection ...")
 def send_data(conn, data):
     try:
         pickled_data = pickle.dumps(data)
-        # length = len(pickled_data)
-        # sendall to make sure it blocks if there's back-pressure on the socket
         length = pack('>Q', len(pickled_data))
-        # self.sock.sendall(length)
         conn.sendall(length)
-        # self.sock.sendall(pickle.dumps(length))
-        # self.sock.sendall(pickled_data)
         conn.sendall(pickled_data)
-        # reply = pickle.loads(self.receive_data())
-        # return reply
         return None
     except Exception as e:
         print("exception in in server.py send_data")
@@ -38,20 +31,11 @@ def receive_data(conn):
     try:
         bs = conn.recv(8)
         (length,) = unpack('>Q', bs)
-        # length = pickle.loads(bs)
-        # print("length in network receive_data:", length)
         data = b''
-        # print("data:", data)
         while len(data) < length:
-            # doing it in batches is generally better than trying
-            # to do it all in one go, so I believe.
             to_read = length - len(data)
-            # print("to_read:", to_read)
-
             data += conn.recv(
                 4096 if to_read > 4096 else to_read)
-        #     print("data:", data)
-        # print("unpickled data:", pickle.loads(data))
         return pickle.loads(data)
     except Exception as e:
         print("exception in in server.py receive_data")
@@ -63,9 +47,7 @@ def threaded_client(conn, client_address):
 
     while True:
         try:
-            # data = pickle.loads(conn.recv(2048 * 50))
             data = receive_data(conn)
-            # print("data received:", data)
 
         except EOFError:  # what is this?? raised when the socket is empty and you call recv
             data = ''
@@ -76,12 +58,10 @@ def threaded_client(conn, client_address):
 
         elif isinstance(data, str):
             if data == "get_avail_games":
-                # conn.sendall(pickle.dumps(game_pool))
                 avail_game_pool = {}
                 for x in game_pool:
                     if game_pool[x]._num_connections < game_pool[x].nb_players:
                         avail_game_pool[x] = game_pool[x]
-                # send_data(conn, game_pool)
                 send_data(conn, avail_game_pool)
 
             elif data.startswith('start'):
@@ -99,7 +79,6 @@ def threaded_client(conn, client_address):
                 print("ips_p_nbrs:", ips_p_nbrs)
                 id_game = id_new_game
                 id_new_game += 1
-                # conn.send(pickle.dumps(p_nbr))
                 send_data(conn, p_nbr)
 
             elif data.startswith('join'):
@@ -134,16 +113,13 @@ def threaded_client(conn, client_address):
 
                         if game._num_connections == game.nb_players:
                             game._ready = True
-                        # conn.sendall(pickle.dumps(p_nbr))
                         send_data(conn, p_nbr)
                     else:
-                        # conn.sendall(pickle.dumps("choose_again"))
                         send_data(conn, "choose_again")
                         print('Trying to join full game', client_address)
 
             elif data == "get":
                 try:
-                    # conn.sendall(pickle.dumps(game))
                     send_data(conn, game)
                 except:
                     break
@@ -153,10 +129,8 @@ def threaded_client(conn, client_address):
                 game_pool.pop(game._id_game, None)
                 players_connected_to_game.pop(game._id_game, None)
                 ips_p_nbrs.pop(game._id_game, None)
-                # to do: get rid of ips_p_nbrs dictionary for that game
 
             try:
-                # conn.sendall(pickle.dumps(game))
                 send_data(conn, game)
             except:
                 break
