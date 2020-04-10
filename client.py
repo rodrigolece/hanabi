@@ -21,6 +21,7 @@ class Client(object):
                                                 HWSURFACE | DOUBLEBUF | RESIZABLE)
         self.win = pygame.surface.Surface((window_width, window_height))
         self.resized_size = (window_width, window_height)
+        self.resized_flag = False
         pygame.display.set_caption("Hanabi")
 
         self.menu_screen()  # the client is started at the menu screen
@@ -30,6 +31,8 @@ class Client(object):
                                                 HWSURFACE | DOUBLEBUF | RESIZABLE)
         scaled_win = pygame.transform.scale(self.win, self.resized_size)
         self.real_win.blit(scaled_win, (0, 0))
+
+        self.resized_flag = False
 
         return None
 
@@ -157,8 +160,6 @@ class Client(object):
             win.blit(text, (1200, 800))
 
     def redrawWindow(self, game, p, stage_of_action, action, nb_players=4):
-        self.blit_resized_win()
-
         win = self.win
         window_width, window_height = self.window_width, self.window_height
 
@@ -197,6 +198,12 @@ class Client(object):
         else:
             self.gameWindow(game, p, stage_of_action, action,
                             nb_players=nb_players)
+
+        if self.resized_flag:
+            self.blit_resized_win()
+        else:
+            scaled_win = pygame.transform.scale(self.win, self.resized_size)
+            self.real_win.blit(scaled_win, (0, 0))
 
         pygame.display.update()
 
@@ -240,6 +247,7 @@ class Client(object):
 
                 elif event.type == pygame.VIDEORESIZE:
                     self.resized_size = event.dict['size']
+                    self.resized_flag = True
 
                 if game.current_player.index == player:
 
@@ -294,8 +302,6 @@ class Client(object):
                                 stage_of_action = 1
 
     def redrawMenuWindow(self, menu_type, avail_games=None):
-        self.blit_resized_win()
-
         win = self.win
         window_width, window_height = self.window_width, self.window_height
 
@@ -336,6 +342,12 @@ class Client(object):
         for btn in btns:
             btn.draw(win)
 
+        if self.resized_flag:
+            self.blit_resized_win()
+        else:
+            scaled_win = pygame.transform.scale(self.win, self.resized_size)
+            self.real_win.blit(scaled_win, (0, 0))
+
         pygame.display.update()
 
         return btns
@@ -367,6 +379,7 @@ class Client(object):
 
                 elif event.type == pygame.VIDEORESIZE:
                     self.resized_size = event.dict['size']
+                    self.resized_flag = True
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = self.scale_pos(pygame.mouse.get_pos())
