@@ -5,7 +5,8 @@ from network import Network
 from util import *
 
 import pygame
-pygame.font.init()
+pygame.init()
+# pygame.font.init()
 
 
 class Client(object):
@@ -15,10 +16,29 @@ class Client(object):
 
         self.window_width = window_width
         self.window_height = window_height
-        self.win = pygame.display.set_mode((window_width, window_height))
+        self.real_win = pygame.display.set_mode((window_width, window_height),
+                                                pygame.RESIZABLE)
+        self.win = pygame.surface.Surface((window_width, window_height))
+        self.resized_size = (window_width, window_height)
         pygame.display.set_caption("Hanabi")
 
         self.menu_screen()  # the client is started at the menu screen
+
+    def blit_resized_win(self):
+        self.real_win = pygame.display.set_mode(self.resized_size,
+                                                pygame.RESIZABLE)
+        scaled_win = pygame.transform.scale(self.win, self.resized_size)
+        self.real_win.blit(scaled_win, (0, 0))
+
+        return None
+
+    def scale_pos(self, real_win_pos):
+        x = real_win_pos[0] * self.window_width // self.resized_size[0]
+        y = real_win_pos[1] * self.window_height // self.resized_size[1]
+        # print('real:', real_win_pos)
+        # print('scaled:', (x, y), '\n')
+
+        return (x, y)
 
     def gameWindow(self, game, p, stage_of_action, action, nb_players=4, game_ended=False):
         win = self.win
@@ -136,6 +156,8 @@ class Client(object):
             win.blit(text, (1200, 800))
 
     def redrawWindow(self, game, p, stage_of_action, action, nb_players=4):
+        self.blit_resized_win()
+
         win = self.win
         window_width, window_height = self.window_width, self.window_height
 
@@ -210,10 +232,18 @@ class Client(object):
                     run = False
                     pygame.quit()
 
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    run = False
+                    pygame.quit()
+
+                elif event.type == pygame.VIDEORESIZE:
+                    self.resized_size = event.dict['size']
+
                 if game.current_player.index == player:
 
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        pos = pygame.mouse.get_pos()
+                        pos = self.scale_pos(pygame.mouse.get_pos())
+
                         if stage_of_action == 0:
                             for btn in btns_action:
                                 if btn.click(pos):
@@ -262,6 +292,8 @@ class Client(object):
                                 stage_of_action = 1
 
     def redrawMenuWindow(self, menu_type, avail_games=None):
+        self.blit_resized_win()
+
         win = self.win
         window_width, window_height = self.window_width, self.window_height
 
@@ -324,8 +356,16 @@ class Client(object):
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     run = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
+
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    run = False
+                    pygame.quit()
+
+                elif event.type == pygame.VIDEORESIZE:
+                    self.resized_size = event.dict['size']
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = self.scale_pos(pygame.mouse.get_pos())
 
                     for btn in btns:
                         if btn.click(pos):
