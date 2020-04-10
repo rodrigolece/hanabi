@@ -5,6 +5,7 @@ from network import Network
 from util import *
 
 import pygame
+from pygame.locals import *
 pygame.init()
 # pygame.font.init()
 
@@ -17,7 +18,7 @@ class Client(object):
         self.window_width = window_width
         self.window_height = window_height
         self.real_win = pygame.display.set_mode((window_width, window_height),
-                                                pygame.RESIZABLE)
+                                                HWSURFACE | DOUBLEBUF | RESIZABLE)
         self.win = pygame.surface.Surface((window_width, window_height))
         self.resized_size = (window_width, window_height)
         pygame.display.set_caption("Hanabi")
@@ -26,7 +27,7 @@ class Client(object):
 
     def blit_resized_win(self):
         self.real_win = pygame.display.set_mode(self.resized_size,
-                                                pygame.RESIZABLE)
+                                                HWSURFACE | DOUBLEBUF | RESIZABLE)
         scaled_win = pygame.transform.scale(self.win, self.resized_size)
         self.real_win.blit(scaled_win, (0, 0))
 
@@ -221,6 +222,7 @@ class Client(object):
 
         while run:
             clock.tick(60)
+            # pygame.event.pump()
 
             game = net.send_data("get")
 
@@ -348,6 +350,8 @@ class Client(object):
 
         while run:
             clock.tick(60)
+            # pygame.event.pump()
+
             games = net.send_data(to_get)
             btns = self.redrawMenuWindow(menu_type, games)
             btn_info = ''
