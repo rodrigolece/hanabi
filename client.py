@@ -26,8 +26,8 @@ class Client(object):
         self.menu_screen()  # the client is started at the menu screen
 
     def blit_resized_win(self):
-        self.real_win = pygame.display.set_mode(self.resized_size,
-                                                HWSURFACE | DOUBLEBUF | RESIZABLE)
+        # self.real_win = pygame.display.set_mode(self.resized_size,
+        #                                         HWSURFACE | DOUBLEBUF | RESIZABLE)
         scaled_win = pygame.transform.scale(self.win, self.resized_size)
         self.real_win.blit(scaled_win, (0, 0))
 
@@ -240,7 +240,8 @@ class Client(object):
 
                 elif event.type == pygame.VIDEORESIZE:
                     self.resized_size = event.dict['size']
-
+                    self.real_win = pygame.display.set_mode(self.resized_size,
+                                                            HWSURFACE | DOUBLEBUF | RESIZABLE)
                 if game.current_player.index == player:
 
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -367,6 +368,8 @@ class Client(object):
 
                 elif event.type == pygame.VIDEORESIZE:
                     self.resized_size = event.dict['size']
+                    self.real_win = pygame.display.set_mode(self.resized_size,
+                                                            HWSURFACE | DOUBLEBUF | RESIZABLE)
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = self.scale_pos(pygame.mouse.get_pos())
