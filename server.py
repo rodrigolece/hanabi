@@ -70,7 +70,7 @@ def threaded_client(conn, client_address):
                 print(
                     f'Creating new game for {nb_players} players. ID: {id_new_game}')
                 # TODO change seed for randomness
-                game = Hanabi(nb_players, id_new_game)
+                game = Hanabi(nb_players, id_new_game, seed=id_new_game)
                 p_nbr = 0
                 game_pool[id_new_game] = game
                 players_connected_to_game[id_new_game] = [client_address]
@@ -152,6 +152,7 @@ def threaded_client(conn, client_address):
         elif nb_connected != game_pool[game._id_game].nb_players:
             # TODO: I think this can be done immediately right? no if statement
             game_pool[game._id_game]._ready = False
+
 
 game_pool = {}
 players_connected_to_game = {}

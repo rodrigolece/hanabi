@@ -8,22 +8,15 @@ from table import Table
 
 
 class Hanabi(object):
-    # table : Table
-    # stack : list(Card)
-    # discarded : list(Card)
-    # players : list(Player)
-    # current_player : Player
-    # round : int
-    # clues : int
-    # lifes : int
 
-    def __init__(self, nb_players, id_game=0, seed=42):
+    def __init__(self, nb_players, id_game=0, seed=42, verbose=False):
         # Below is used in online games
         self._num_connections = 1  # a game is initialised when there is 1 connection
         self._ready = False
         self._finished = None
         self._id_game = id_game
 
+        self.verbose = verbose
         self.nb_players = nb_players
         self.round = 0
         self.clues = 8
@@ -39,9 +32,7 @@ class Hanabi(object):
 
         cards = [Card(c, n) for (c, n) in itertools.product(colours, numbers)]
         self.stack = self._rng.permutation(cards).tolist()
-        # self.discarded = []
 
-        # I've updated the numbers below
         rules_dict = dict([(2, 5), (3, 5), (4, 4), (5, 4)])
         nb_in_hand = rules_dict[self.nb_players]
 
@@ -71,18 +62,18 @@ class Hanabi(object):
 
     def check_endgame(self):
         if self.lifes == 0:
-            print("YOU LOSE")
+            if self.verbose:
+                print('YOU LOSE')
             self._finished = -1
             # exit()
 
         if self._endgame_count == 0:
             points = self.table.total_points()
-            if points == 25:
-                print("CONGRATULATIONS, YOU WON!")
-            else:
-                print(f'Total points: {points}')
-            # exit()
             self._finished = points
+            end_message = 'CONGRATULATIONS, YOU WON!' if points == 25 else f'Total points: {points}'
+            # exit()
+            if self.verbose:
+                print(end_message)
 
         if len(self.stack) == 0 and self._endgame_count > 0:
             self._endgame_count -= 1
@@ -102,8 +93,9 @@ class Hanabi(object):
                 break
 
         if nb_cards == 1:  # This is the behaviour of pickup_card
-            print("\nPicked up a {} {}".format(card.colour, card.number))
             self.most_recent_pickup = card
+            if self.verbose:
+                print("\nPicked up a {} {}".format(card.colour, card.number))
 
         return None
 
@@ -111,7 +103,8 @@ class Hanabi(object):
         self.round += 1
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
-        print("\nCurrent player is player {}".format(to_play))
+        if self.verbose:
+            print("\nCurrent player is player {}".format(to_play))
 
         return None
 
@@ -132,10 +125,11 @@ class Hanabi(object):
                 self.deal_cards(self.current_player, 1)
 
             if play_succesful is False:
-                print("Life lost.")
                 self.lifes -= 1
                 self.most_recent_move_life_lost = True
                 self.table.discard_card(card)
+                if self.verbose:
+                    print("Life lost.")
 
             if stack_finished and (self.clues < 8):
                 self.clues += 1
@@ -151,7 +145,7 @@ class Hanabi(object):
 
         elif action == 'hint':
             if self.clues < 1:
-                print('No hints to left to give. Discard or play.')
+                # print('No hints to left to give. Discard or play.')
                 pass_hand = False
             else:
                 to_player, info = out
