@@ -7,7 +7,6 @@ from client import Client
 parser = argparse.ArgumentParser(description='Hanabi Client')
 parser.add_argument('-i', '--ipaddr', dest='ip_addr', default="82.14.199.227",
                     help='The IP address of the game server')
-# parser.add_argument('ip_addr', help='The IP address of the game server')
 parser.add_argument('-l', '--local', action='store_const', const=True, default=False,
                     help='Use the default local IP address (not localhost)')
 parser.add_argument('-p', '--port', type=int, default=5555,
