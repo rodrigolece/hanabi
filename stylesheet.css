@@ -1,0 +1,41 @@
+.container {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+p {
+    font-family: sans-serif;
+}
+#messages {
+    width: 500px;
+    height: 300px;
+    border: thin dotted darkgrey;
+    float: left;
+}
+#hands {
+    float: left;
+}
+#main {
+    float: left;
+}
+#useful {
+    float: right;
+}
+#useless {
+    float: right;
+}
+svg {
+    border: thin dotted darkgrey;
+}
+.useful svg {
+    background-color: beige;
+}
+.useless svg {
+    background-color: beige;
+}
+.card-visible {
+    fill: #ccc;
+}
+.card-text {
+    font: 2em sans-serif;
+    text-anchor: middle;
+}
