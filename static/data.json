@@ -1,14 +1,23 @@
 {
+    "game" : {
+        "round": 0,
+        "clues": 8,
+        "lifes": 3,
+        "endgame": false,
+        "finished": false
+    },
     "players": [
         {
             "player": 1,
-            "hand":[
+            "hand": [
                 {"colour": "red", "number": 1},
                 {"colour": "blue", "number": 2},
                 {"colour": "green", "number": 3},
                 {"colour": "yellow", "number": 4},
                 {"colour": "white", "number": 5}
-            ]
+            ],
+            "colourInfo": [null, "blue", null, null, null],
+            "numberInfo": [1, 2, null, null, null]
         },
         {
             "player": 2,
@@ -18,7 +27,9 @@
                 {"colour": "blue", "number": 5},
                 {"colour": "green", "number": 1},
                 {"colour": "yellow", "number": 3}
-            ]
+            ],
+            "colourInfo": [null, null, null, null, null],
+            "numberInfo": [null, null, null, 1, null]
         }
     ],
     "played": [
