@@ -32,10 +32,16 @@ svg {
 .useless svg {
     background-color: beige;
 }
-.card-visible {
+.card > rect {
     fill: #ccc;
 }
-.card-text {
+.card > text {
     font: 2em sans-serif;
     text-anchor: middle;
+}
+.card-invisible > rect {
+    fill: #6495ED;
+}
+.card-invisible > text {
+    visibility: hidden;
 }

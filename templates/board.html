@@ -19,6 +19,27 @@
             <div id="main"></div>
         </div>
         <script type="text/javascript">
+            // altocumulus
+            // https://stackoverflow.com/questions/38224875/replacing-d3-transform-in-d3-v4
+            function getTranslation(transform) {
+                // Create a dummy g for calculation purposes only. This will never
+                // be appended to the DOM and will be discarded once this function
+                // returns.
+                var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                // Set the transform attribute to the provided string value.
+                g.setAttributeNS(null, "transform", transform);
+
+                // consolidate the SVGTransformList containing all transformations
+                // to a single SVGTransform of type SVG_TRANSFORM_MATRIX and get
+                // its SVGMatrix.
+                var matrix = g.transform.baseVal.consolidate().matrix;
+
+                // As per definition values e and f are the ones for the translation.
+                return [matrix.e, matrix.f];
+            }
+        </script>
+        <script type="text/javascript">
             const width = 500,
                 height = 400
                 margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -79,18 +100,20 @@
                     .padding(0.6);
 
                 drawPlayed(data.played);
+                svgHands.select("#player1").selectAll(".card").attr("class", "card-invisible")
                 drawDiscarded(svgUseful, data.discardedUseful)
                 drawDiscarded(svgUseless, data.discardedUseless)
 
 
                 function drawHand(player) {
-                    let g = svgHands.append("g").attr("class", "hand");
+                    let g = svgHands.append("g").attr("id", "player"+player.player);
 
-                    let card = g.selectAll(".card-visible")
+                    let card = g.selectAll(".card")
                         .data(player.hand)
                         .enter()
                         .append("g")
-                        .attr("class", "card-visible");
+                        .attr("player", player.player)
+                        .attr("class", "card");
 
                     card.append("rect")
                         .attr("x", (_, i) => x(i))
@@ -105,18 +128,18 @@
                         .attr("y", y(player.player) + cardHeight/2)
                         .attr("dy", "0.4em")
                         .text(d => d.number)
-                        .style("fill", d => d.colour)
-                        .attr("class", "card-text");
+                        .style("fill", d => d.colour);
+                        // .attr("class", "card-text");
                 }
 
                 function drawPlayed(played) {
-                    let g = svgStack.append("g").attr("class", "main");
+                    let g = svgStack.append("g")//.attr("class", "main");
 
-                    let card = g.selectAll(".card-visible")
+                    let card = g.selectAll(".card")
                         .data(played)
                         .enter()
                         .append("g")
-                        .attr("class", "card-visible");
+                        .attr("class", "card");
 
                     card.append("rect")
                         .attr("x", d => xx(d.colour))
@@ -130,16 +153,16 @@
                         .attr("y", margin.top + cardHeight/2)
                         .attr("dy", "0.4em")
                         .text(d => d.number)
-                        .style("fill", d => d.colour)
-                        .attr("class", "card-text");
+                        .style("fill", d => d.colour);
+                        // .attr("class", "card-text");
                 }
 
                 function drawDiscarded(g, played) {
-                    let card = g.selectAll(".card-visible")
+                    let card = g.selectAll(".card")
                         .data(played)
                         .enter()
                         .append("g")
-                        .attr("class", "card-visible");
+                        .attr("class", "card");
 
                     card.append("rect")
                         .attr("x", d => xx(d.colour))
@@ -153,25 +176,38 @@
                         .attr("y", d => yy(d.number) + cardHeight/2)
                         .attr("dy", "0.4em")
                         .text(d => d.number)
-                        .style("fill", d => d.colour)
-                        .attr("class", "card-text");
+                        .style("fill", d => d.colour);
+                        // .attr("class", "card-text");
                 }
 
                 // Handle drag and drop
                 let dragHandler = d3.drag()
                     .on("start", function () {
+                        // Check if the card has transform attribute (translation)
+                        // if yes, use that as start of movement
                         let current = d3.select(this);
-                        dx = current.attr("x") - d3.event.x;
-                        dy = current.attr("y") - d3.event.y;
+                        let transform = current.attr("transform");
+                        if (transform === null) {
+                            dx = current.attr("x") - d3.event.x;
+                            dy = current.attr("y") - d3.event.y;
+                        } else {
+                            let t = getTranslation(transform);
+                            dx = t[0] - d3.event.x;
+                            dy = t[1] - d3.event.y;
+                        }
                     })
                     .on("drag", function () {
                         d3.select(this)
                             .attr("transform", `translate(${d3.event.x + dx}, ${d3.event.y + dy})`);
-                            // .attr("x", d3.event.x + deltaX)
-                            // .attr("y", d3.event.y + deltaY);
-                    });
+                    })
+                    .on("end", function () {
+                        let current = d3.select(this);
+                        let t = getTranslation(current.attr("transform"));
+                        current
+                            .attr("transform", `translate(${t[0]})`)  // default y = 0
+                        });
 
-                dragHandler(svgHands.selectAll(".card-visible"))
+                dragHandler(svgHands.selectAll(".card-invisible"))
             })
         </script>
     </body>
