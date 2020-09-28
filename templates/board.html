@@ -80,7 +80,7 @@
                     .padding(0.6);
 
                 let y = d3.scaleBand()
-                    .domain(players.map(d => d.player))  // nb_players
+                    .domain(players.map(d => d.id))  // nb_players
                     .range([margin.top, height - margin.bottom])
                     .padding(0.6);
 
@@ -99,25 +99,26 @@
                     .range([margin.top, height - margin.bottom])
                     .padding(0.6);
 
-                drawPlayed(data.played);
-                svgHands.select("#player1").selectAll(".card").attr("class", "card-invisible")
-                drawDiscarded(svgUseful, data.discardedUseful)
-                drawDiscarded(svgUseless, data.discardedUseless)
+                drawPlayed(data.stacks.played);
+                // Set the current player as invisible
+                svgHands.select("#player0").selectAll(".card").attr("class", "card-invisible")
+                drawDiscarded(svgUseful, data.stacks.discardedUseful)
+                drawDiscarded(svgUseless, data.stacks.discardedUseless)
 
 
                 function drawHand(player) {
-                    let g = svgHands.append("g").attr("id", "player"+player.player);
+                    let g = svgHands.append("g").attr("id", "player"+player.id);
 
                     let card = g.selectAll(".card")
                         .data(player.hand)
                         .enter()
                         .append("g")
-                        .attr("player", player.player)
+                        .attr("player", player.id)
                         .attr("class", "card");
 
                     card.append("rect")
                         .attr("x", (_, i) => x(i))
-                        .attr("y", y(player.player))
+                        .attr("y", y(player.id))
                         .attr("width", x.bandwidth())
                         .attr("height", cardHeight)
                         .attr("rx", cardRadius);
@@ -125,7 +126,7 @@
 
                     card.append("text")
                         .attr("x", (_, i) => x(i) + x.bandwidth()/2)
-                        .attr("y", y(player.player) + cardHeight/2)
+                        .attr("y", y(player.id) + cardHeight/2)
                         .attr("dy", "0.4em")
                         .text(d => d.number)
                         .style("fill", d => d.colour);

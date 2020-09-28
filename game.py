@@ -1,5 +1,7 @@
+"""Main class that models the game."""
 import itertools
 import textwrap
+import json
 import numpy as np
 
 from player import Player
@@ -13,7 +15,7 @@ class Hanabi(object):
         # Below is used in online games
         self._num_connections = 1  # a game is initialised when there is 1 connection
         self._ready = False
-        self._finished = None
+        self._finished = None  # used for number of points at the end
         self._id_game = id_game
 
         self.verbose = verbose
@@ -46,7 +48,8 @@ class Hanabi(object):
         to_play = self.round % self.nb_players
         self.current_player = self.players[to_play]
 
-        self.num_connections = 1  # only initialised when there is one connection
+        # This is used in displayed game
+        self.num_connections = 1  # TODO: not used? _num_connections above is used?
         self.ready = False
         self.most_recent_move = None
         self.most_recent_pickup = None
@@ -56,9 +59,23 @@ class Hanabi(object):
         s = f"""
             Hanabi game with {self.nb_players} players at round {self.round}
              - Remaining lifes: {self.lifes}
-             - Remaining clues: {self.clues}"""
+             - Remaining clues: {self.clues}
+             - Remaining cards in stack: {len(self.stack)}"""
 
         return textwrap.dedent(s)
+
+    def serialise(self):
+        out = dict()
+        out['game'] = {'round': self.round,
+                       'clues': self.clues,
+                       'lifes': self.lifes,
+                       'endgame': self._endgame_flag,
+                       'finished': self._finished
+                       }
+        out['players'] = [p.serialise() for p in self.players]
+        out['stacks'] = self.table.serialise()
+
+        return json.dumps(out)
 
     def check_endgame(self):
         if self.lifes == 0:
@@ -110,7 +127,7 @@ class Hanabi(object):
 
     def player_played(self, action, **kwargs):
         assert action in ('play', 'discard', 'hint')
-        # TOOD handle more gracefully than assert
+        # TODO: handle more gracefully than assert
 
         method = getattr(self.current_player, action)
         out = method(**kwargs)

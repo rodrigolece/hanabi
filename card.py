@@ -1,3 +1,5 @@
+"""Card class"""
+
 
 class Card(object):
     def __init__(self, colour, number):
@@ -7,4 +9,7 @@ class Card(object):
         return None
 
     def __str__(self):
-        return "A {} {}".format(self.colour, self.number)
+        return f'Card: {self.colour}-{self.number}'
+
+    def serialise(self):
+        return {'colour': self.colour, 'number': self.number}

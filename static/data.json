@@ -8,7 +8,7 @@
     },
     "players": [
         {
-            "player": 1,
+            "id": 0,
             "hand": [
                 {"colour": "red", "number": 1},
                 {"colour": "blue", "number": 2},
@@ -20,7 +20,7 @@
             "numberInfo": [1, 2, null, null, null]
         },
         {
-            "player": 2,
+            "id": 1,
             "hand": [
                 {"colour": "yellow", "number": 5},
                 {"colour": "red", "number": 5},
@@ -32,16 +32,18 @@
             "numberInfo": [null, null, null, 1, null]
         }
     ],
-    "played": [
-        {"colour": "yellow", "number": 2},
-        {"colour": "blue", "number": 1},
-        {"colour": "white", "number": 1}
-    ],
-    "discardedUseful": [
-        {"colour": "yellow", "number": 4},
-        {"colour": "blue", "number": 5}
-    ],
-    "discardedUseless": [
-        {"colour": "yellow", "number": 1}
-    ]
+    "stacks" : {
+        "played": [
+            {"colour": "yellow", "number": 2},
+            {"colour": "blue", "number": 1},
+            {"colour": "white", "number": 1}
+        ],
+        "discardedUseful": [
+            {"colour": "yellow", "number": 4},
+            {"colour": "blue", "number": 5}
+        ],
+        "discardedUseless": [
+            {"colour": "yellow", "number": 1}
+        ]
+    }
 }

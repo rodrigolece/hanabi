@@ -1,4 +1,4 @@
-
+"""Table class (different stacks)"""
 import numpy as np
 
 
@@ -14,12 +14,27 @@ class Table(object):
         self.useless_discarded_stack = []
         return None
 
+    def serialise(self):
+        out = dict()
+
+        out['played'] = []
+        for colour in ['red', 'blue', 'green', 'yellow', 'white']:
+            stack = getattr(self, f'{colour}_stack')
+            if len(stack) > 0:
+                top_card = stack[-1]
+                out['played'].append(top_card.serialise())
+
+        out['discardedUseful'] = [c.serialise()
+                                  for c in self.useful_discarded_stack]
+        out['discardedUseless'] = [c.serialise()
+                                   for c in self.useless_discarded_stack]
+        return out
+
     def total_points(self):
         total = 0
 
         for colour in ['red', 'blue', 'green', 'yellow', 'white']:
-            stack_name = f'{colour}_stack'
-            stack = getattr(self, stack_name)
+            stack = getattr(self, f'{colour}_stack')
             total += len(stack)
 
         return total
@@ -54,9 +69,9 @@ class Table(object):
 
     def discard_card(self, card):
         stack_name = f'{card.colour}_stack'
-        stack = getattr(self, stack_name)
+        stack = getattr(self, stack_name, None)
 
-        if len(stack) == 0:
+        if len(stack) == 0:  # this will fail with wrong colour (None in getattr)
             self.useful_discarded_stack.append(card)
         elif stack[-1].number < card.number:
             self.useful_discarded_stack.append(card)

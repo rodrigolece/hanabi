@@ -1,10 +1,11 @@
-
+""""Player class"""
 from tabulate import tabulate
 
 
 class Player(object):
     def __init__(self, index):
         self.index = index  # player number
+        # TODO: index can be changed to name string right?
         self.hand = []
         self.hand_colour_info = {}
         self.hand_number_info = {}
@@ -20,6 +21,15 @@ class Player(object):
                         str(self.hand_number_info[c]).replace('None', '-')])
         s = s + tabulate(tab, headers=('hand', 'info'))
         return s
+
+    def serialise(self):
+        out = dict()
+        out['id'] = self.index  # TODO: could use name
+        out['hand'] = [c.serialise() for c in self.hand]
+        out['colourInfo'] = [self.hand_colour_info[c] for c in self.hand]
+        out['numberInfo'] = [self.hand_number_info[c] for c in self.hand]
+
+        return out
 
     def info_string(self):
         s = f'Player {self.index}:\n'
