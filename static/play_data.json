@@ -1,0 +1,28 @@
+[
+    {
+        "id" : 0,
+        "action" : "play",
+        "args" : {"card_id" : 0}
+    },
+    {
+        "id" : 0,
+        "action" : "discard",
+        "args" : {"card_id" : 2}
+    },
+    {
+        "id" : 0,
+        "action" : "hint",
+        "args" : {
+            "player_id" : 1,
+            "info" : "green"
+        }
+    },
+    {
+        "id" : 0,
+        "action" : "hint",
+        "args" : {
+            "player_id" : 1,
+            "info" : "1"
+        }
+    }
+]

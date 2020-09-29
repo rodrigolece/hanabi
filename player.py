@@ -63,7 +63,7 @@ class Player(object):
         return card
 
     def discard(self, card):
-        print("\nDiscarding a {} {}".format(card.colour, card.number))
+        # print("\nDiscarding a {} {}".format(card.colour, card.number))
         self.hand.remove(card)
         del self.hand_colour_info[card]
         del self.hand_number_info[card]

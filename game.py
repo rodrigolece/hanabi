@@ -67,6 +67,7 @@ class Hanabi(object):
     def serialise(self):
         out = dict()
         out['game'] = {'round': self.round,
+                       'current_id': self.current_player.index,
                        'clues': self.clues,
                        'lifes': self.lifes,
                        'endgame': self._endgame_flag,
@@ -75,7 +76,7 @@ class Hanabi(object):
         out['players'] = [p.serialise() for p in self.players]
         out['stacks'] = self.table.serialise()
 
-        return json.dumps(out)
+        return out  # json.dumps(out)
 
     def check_endgame(self):
         if self.lifes == 0:
@@ -174,27 +175,33 @@ class Hanabi(object):
 
         return pass_hand
 
-    def update_table(self, move):
-        if (move[0] == 'play') or (move[0] == 'discard'):
-            # format of move[1] should be an list with a single integer, indicating which card to play/discard
-            card1 = self.current_player.hand[move[1][0]]
-            next = self.player_played(
-                move[0], card=card1)
-            if next:
-                self.next_player()
-                self.most_recent_move = [move[0], card1]
-        else:
-            to_player = move[1][0]
-            info = move[1][1]
-            if info in ['red', 'blue', 'green', 'yellow', 'white']:
-                next = self.player_played(
-                    move[0], to_player=self.players[to_player], info=info)
-            else:
-                next = self.player_played(
-                    move[0], to_player=self.players[to_player], info=int(info))
+    def update_table(self, action, card_id=None, player_id=None, info=None):
+        """Translate card or player index and execute turn."""
+        if action in ['play', 'discard']:
+            assert card_id is not None  # TODO: handle more gracefully
 
-            if next:
-                self.most_recent_move = move
-                self.next_player()
+            card = self.current_player.hand[card_id]
+            pass_hand = self.player_played(action, card=card)
+
+        else:  # hint
+            assert player_id is not None
+            assert info is not None  # TODO: handle more gracefully
+
+            to_player = self.players[player_id]
+            if info in ['red', 'blue', 'green', 'yellow', 'white']:
+                pass
+            elif info in [str(i) for i in range(1, 6)]:
+                info = int(info)
+            else:
+                raise ValueError
+
+            pass_hand = self.player_played(action,
+                                           to_player=to_player,
+                                           info=info)
+
+        if pass_hand:
+            self.next_player()
+            self.most_recent_move = [action, card_id, player_id, info]
+        # TODO: else, repeat play attempt
 
         return None

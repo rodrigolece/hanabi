@@ -1,6 +1,7 @@
 {
     "game" : {
         "round": 0,
+        "current_id" : 1,
         "clues": 8,
         "lifes": 3,
         "endgame": false,

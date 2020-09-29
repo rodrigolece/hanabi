@@ -3,213 +3,87 @@
     <head>
         <meta charset="utf-8">
         <title>Hanabi</title>
-        <script src="https://d3js.org/d3.v5.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function () {
+                var socket = io.connect();
+
+                socket.on("connect", function () {
+                    console.log("Connected to server!")
+                });
+                
+                socket.on("board", function (msg) {
+                    console.log("Received board update")
+                    updateHeader(msg.data.game);
+                    drawBoard(msg.data);
+                });
+
+                socket.on("message", function (msg) {
+                    console.log(msg)
+                })
+
+                $("button#play").click(function () {
+                    socket.emit('played', {data: {
+                            "id" : 0,
+                            "action" : "play",
+                            "args" : {"card_id" : 0}
+                        }
+                    })
+                });
+
+                $("button#discard").click(function () {
+                    socket.emit('played', {data: {
+                            "id" : 0,
+                            "action" : "discard",
+                            "args" : {"card_id" : 2}
+                        }
+                    })
+                });
+
+                $("button#hint").click(function () {
+                    socket.emit('played', {data: {
+                            "id" : 0,
+                            "action" : "hint",
+                            "args" : {"player_id" : 1, "info": "green"}
+                        }
+                    })
+                });
+            });
+        </script>
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/library.js') }}" charset="utf-8"></script>
     </head>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
     <body>
         <div class="container">
-            <h4>You are: {{ player }}</h4>
+            <h4>You are: {{ player }} Current player: <span id="current"></span> Remaining lifes: <span id="lifes"></span>  Remaining clues: <span id="clues"></span></h4>
             <div id="messages">
-                <p>Player 1 played a red 1</p>
+                <p>Player one played a red 1</p>
                 <p>Player two gave a hint</p>
             </div>
             <div id="useful"></div>
             <div id="hands"></div>
             <div id="useless"></div>
             <div id="main"></div>
+            <br>
+            <table><tr>
+                <td><button type="button" id="play">Play</button></td>
+                <td><button type="button" id="hint">Hint</button></form></td>
+                <td><button type="button" id="discard">Discard</button></td>
+                <!-- <form id="hint" action="" method="post">
+                    <td><button type="submit" name="action" value="play">Play</button></td>
+                    <td><button type="submit" name="action" value="hint">Hint</button></td>
+                    <td><button type="submit" name="action" value="discard">Discard</button></td>
+                </form> -->
+            </tr></table>
+
         </div>
-        <script type="text/javascript">
-            // altocumulus
-            // https://stackoverflow.com/questions/38224875/replacing-d3-transform-in-d3-v4
-            function getTranslation(transform) {
-                // Create a dummy g for calculation purposes only. This will never
-                // be appended to the DOM and will be discarded once this function
-                // returns.
-                var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-
-                // Set the transform attribute to the provided string value.
-                g.setAttributeNS(null, "transform", transform);
-
-                // consolidate the SVGTransformList containing all transformations
-                // to a single SVGTransform of type SVG_TRANSFORM_MATRIX and get
-                // its SVGMatrix.
-                var matrix = g.transform.baseVal.consolidate().matrix;
-
-                // As per definition values e and f are the ones for the translation.
-                return [matrix.e, matrix.f];
-            }
-        </script>
-        <script type="text/javascript">
-            const width = 500,
-                height = 400
-                margin = {top: 20, right: 10, bottom: 20, left: 10};
-
-            const cardHeight = 60
-                cardRadius = 5;
-
-            let svgHands = d3.select("div#hands").append("svg")
-                // .attr("viewBox", [0, 0, width, height]);
-                .attr("width", width)
-                .attr("height", height);
-
-            let svgStack = d3.select("div#main").append("svg")
-                .attr("width", width)
-                .attr("height", 100);
-
-            let svgUseful = d3.select("div#useful").append("svg")
-                .attr("width", width)
-                .attr("height", height)
-            .append("g")
-                .attr("class", "useful");
-
-            let svgUseless = d3.select("div#useless").append("svg")
-                .attr("width", width)
-                .attr("height", height)
-            .append("g")
-                .attr("class", "useless");
-
-
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/svg_scales.js') }}" charset="utf-8"></script>
+        <!-- <script type="text/javascript">
             d3.json("{{ url_for('static', filename='data.json') }}").then(data => {
-
-                let players = data.players;
-
-                // Scales for hands
-                let x = d3.scaleBand()
-                    .domain([0,1,2,3,4])  // [..."01234"].map(x => +x)
-                    .range([margin.left, width - margin.right])
-                    .padding(0.6);
-
-                let y = d3.scaleBand()
-                    .domain(players.map(d => d.id))  // nb_players
-                    .range([margin.top, height - margin.bottom])
-                    .padding(0.6);
-
-                players.forEach(d => drawHand(d))
-                // drawHand(players.filter(d => d.player === 1)[0])
-                // drawHand(players.filter(d => d.player === 2)[0])
-
-                // Scales for the 5 colours (discarded stacks)
-                let xx = d3.scaleBand()
-                    .domain(["red", "blue", "green", "yellow", "white"])
-                    .range([margin.left, width - margin.right])
-                    .padding(0.6);
-
-                let yy = d3.scaleBand()
-                    .domain([1, 2, 3, 4, 5])  // nb_players
-                    .range([margin.top, height - margin.bottom])
-                    .padding(0.6);
-
-                drawPlayed(data.stacks.played);
-                // Set the current player as invisible
-                svgHands.select("#player0").selectAll(".card").attr("class", "card-invisible")
-                drawDiscarded(svgUseful, data.stacks.discardedUseful)
-                drawDiscarded(svgUseless, data.stacks.discardedUseless)
-
-
-                function drawHand(player) {
-                    let g = svgHands.append("g").attr("id", "player"+player.id);
-
-                    let card = g.selectAll(".card")
-                        .data(player.hand)
-                        .enter()
-                        .append("g")
-                        .attr("player", player.id)
-                        .attr("class", "card");
-
-                    card.append("rect")
-                        .attr("x", (_, i) => x(i))
-                        .attr("y", y(player.id))
-                        .attr("width", x.bandwidth())
-                        .attr("height", cardHeight)
-                        .attr("rx", cardRadius);
-                        // .class?
-
-                    card.append("text")
-                        .attr("x", (_, i) => x(i) + x.bandwidth()/2)
-                        .attr("y", y(player.id) + cardHeight/2)
-                        .attr("dy", "0.4em")
-                        .text(d => d.number)
-                        .style("fill", d => d.colour);
-                        // .attr("class", "card-text");
-                }
-
-                function drawPlayed(played) {
-                    let g = svgStack.append("g")//.attr("class", "main");
-
-                    let card = g.selectAll(".card")
-                        .data(played)
-                        .enter()
-                        .append("g")
-                        .attr("class", "card");
-
-                    card.append("rect")
-                        .attr("x", d => xx(d.colour))
-                        .attr("y", margin.top)
-                        .attr("width", xx.bandwidth())
-                        .attr("height", cardHeight)
-                        .attr("rx", cardRadius);
-
-                    card.append("text")
-                        .attr("x", d => xx(d.colour) + xx.bandwidth()/2)
-                        .attr("y", margin.top + cardHeight/2)
-                        .attr("dy", "0.4em")
-                        .text(d => d.number)
-                        .style("fill", d => d.colour);
-                        // .attr("class", "card-text");
-                }
-
-                function drawDiscarded(g, played) {
-                    let card = g.selectAll(".card")
-                        .data(played)
-                        .enter()
-                        .append("g")
-                        .attr("class", "card");
-
-                    card.append("rect")
-                        .attr("x", d => xx(d.colour))
-                        .attr("y", d => yy(d.number))
-                        .attr("width", xx.bandwidth())
-                        .attr("height", cardHeight)
-                        .attr("rx", cardRadius)
-
-                    card.append("text")
-                        .attr("x", d => xx(d.colour) + xx.bandwidth()/2)
-                        .attr("y", d => yy(d.number) + cardHeight/2)
-                        .attr("dy", "0.4em")
-                        .text(d => d.number)
-                        .style("fill", d => d.colour);
-                        // .attr("class", "card-text");
-                }
-
-                // Handle drag and drop
-                let dragHandler = d3.drag()
-                    .on("start", function () {
-                        // Check if the card has transform attribute (translation)
-                        // if yes, use that as start of movement
-                        let current = d3.select(this);
-                        let transform = current.attr("transform");
-                        if (transform === null) {
-                            dx = current.attr("x") - d3.event.x;
-                            dy = current.attr("y") - d3.event.y;
-                        } else {
-                            let t = getTranslation(transform);
-                            dx = t[0] - d3.event.x;
-                            dy = t[1] - d3.event.y;
-                        }
-                    })
-                    .on("drag", function () {
-                        d3.select(this)
-                            .attr("transform", `translate(${d3.event.x + dx}, ${d3.event.y + dy})`);
-                    })
-                    .on("end", function () {
-                        let current = d3.select(this);
-                        let t = getTranslation(current.attr("transform"));
-                        current
-                            .attr("transform", `translate(${t[0]})`)  // default y = 0
-                        });
-
-                dragHandler(svgHands.selectAll(".card-invisible"))
+                drawBoard(data)
             })
-        </script>
+        </script> -->
     </body>
 </html>
