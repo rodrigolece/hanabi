@@ -1,15 +1,62 @@
-const width = 500,
+const width = 500
     height = 400
-    margin = {top: 20, right: 10, bottom: 20, left: 10};
+    margin = {top: 20, right: 10, bottom: 20, left: 10}
+    btnMargin = {top: 20, right: 30, bottom: 20, left: 30};
 
 const cardHeight = 60
     cardRadius = 5;
 
+const btnHeight = height
+    btnWidth = 50;
+
+// The player hands
 let svgHands = d3.select("div#hands").append("svg")
     // .attr("viewBox", [0, 0, width, height]);
     .attr("width", width)
     .attr("height", height);
 
+// Discard button
+let btnDiscard = svgHands.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", btnWidth)
+    .attr("height", btnHeight)
+    .attr("id", "discard");
+
+let coordsDiscard = [
+    [0,0], [btnWidth, 0], [btnWidth, btnHeight], [0, btnHeight]
+];
+
+svgHands.append("text")
+    .attr("x", 0)
+    .attr("y", btnHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("dx", 30)
+    .text("Discard")
+    .attr("class", "vertical-left");
+
+let coordsPlay = [
+    [width - btnWidth, 0], [width, 0], [width, btnHeight], [width - btnWidth, btnHeight]
+];
+
+// Play button
+let btnPlay = svgHands.append("rect")
+    .attr("x", width - btnWidth)
+    .attr("y", 0)
+    .attr("width", btnWidth)
+    .attr("height", btnHeight)
+    .attr("id", "play");
+
+svgHands.append("text")
+    .attr("x", width - btnWidth)
+    .attr("y", btnHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("dx", btnWidth / 2)
+    .text("Play")
+    .attr("class", "vertical-right")
+
+
+// The other stacks
 let svgStack = d3.select("div#main").append("svg")
     .attr("width", width)
     .attr("height", 100);
@@ -29,13 +76,13 @@ let svgUseless = d3.select("div#useless").append("svg")
 // Scales for hands
 let x = d3.scaleBand()
     .domain([0,1,2,3,4])  // [..."01234"].map(x => +x)
-    .range([margin.left, width - margin.right])
+    .range([btnMargin.left, width - btnMargin.right])
     .padding(0.6);
 
 
 let y = d3.scaleBand()
     .domain([0, 1])  // players.map(d => d.id)
-    .range([margin.top, height - margin.bottom])
+    .range([btnMargin.top, height - btnMargin.bottom])
     .padding(0.6);
 
 // Scales for the 5 colours (discarded stacks)
@@ -58,8 +105,8 @@ let dragHandler = d3.drag()
         let current = d3.select(this);
         let transform = current.attr("transform");
         if (transform === null) {
-            dx = current.attr("x") - d3.event.x;
-            dy = current.attr("y") - d3.event.y;
+            dx = - d3.event.x;
+            dy = - d3.event.y;
         } else {
             let t = getTranslation(transform);
             dx = t[0] - d3.event.x;
@@ -72,7 +119,17 @@ let dragHandler = d3.drag()
     })
     .on("end", function () {
         let current = d3.select(this);
+        data = current.node().__data__
         let t = getTranslation(current.attr("transform"));
+        let pos = [+current.select("rect").attr("x") + t[0] + 15,  // +15 compensates width of card
+                   +current.select("rect").attr("y") + t[1]];
+
+        if (d3.polygonContains(coordsPlay, pos)) {
+            console.log(`Play! ${data.colour} - ` + data.number.toString())
+        } else if (d3.polygonContains(coordsDiscard, pos)) {
+            console.log(`Discard! ${data.colour} - ` + data.number.toString())
+        }
+
         current
             .attr("transform", `translate(${t[0]})`)  // default y = 0
         });

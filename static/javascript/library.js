@@ -113,4 +113,5 @@ function updateHeader(data) {
     $("#current").text(data.current_id);
     $("#lifes").text(data.lifes);
     $("#clues").text(data.clues);
+    $("#remaining").text(data.remaining);
 }

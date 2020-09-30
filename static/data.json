@@ -4,6 +4,7 @@
         "current_id" : 1,
         "clues": 8,
         "lifes": 3,
+        "remaining": 27,
         "endgame": false,
         "finished": false
     },

@@ -11,25 +11,39 @@ p {
     border: thin dotted darkgrey;
     float: left;
 }
-#hands {
+div#hands {
     float: left;
 }
-#main {
+div#main {
     float: left;
 }
-#useful {
+div#useful {
     float: right;
 }
-#useless {
+div#useless {
     float: right;
 }
 svg {
     border: thin dotted darkgrey;
 }
-.useful svg {
+rect#discard {
+    fill: salmon;
+}
+rect#play {
+    fill: PaleGreen;
+}
+text.vertical-right {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+text.vertical-left {
+    writing-mode: sideways-lr;
+    text-orientation: mixed;
+}
+svg.useful {
     background-color: beige;
 }
-.useless svg {
+svg.useless {
     background-color: beige;
 }
 .card > rect {

@@ -70,6 +70,7 @@ class Hanabi(object):
                        'current_id': self.current_player.index,
                        'clues': self.clues,
                        'lifes': self.lifes,
+                       'remaining': len(self.stack),
                        'endgame': self._endgame_flag,
                        'finished': self._finished
                        }
