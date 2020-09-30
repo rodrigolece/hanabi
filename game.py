@@ -32,7 +32,8 @@ class Hanabi(object):
         colours = ['red', 'blue', 'green', 'yellow', 'white']
         numbers = [1, 1, 1, 2, 2, 3, 3, 4, 4, 5]
 
-        cards = [Card(c, n) for (c, n) in itertools.product(colours, numbers)]
+        cards = [Card(c, n, id)
+                 for id, (c, n) in enumerate(itertools.product(colours, numbers))]
         self.stack = self._rng.permutation(cards).tolist()
 
         rules_dict = dict([(2, 5), (3, 5), (4, 4), (5, 4)])
@@ -178,10 +179,13 @@ class Hanabi(object):
 
     def update_table(self, action, card_id=None, player_id=None, info=None):
         """Translate card or player index and execute turn."""
+        # TODO: This will only work for the rigth player!
         if action in ['play', 'discard']:
             assert card_id is not None  # TODO: handle more gracefully
 
-            card = self.current_player.hand[card_id]
+            hand = self.current_player.hand
+            index = [c._id for c in hand].index(card_id)
+            card = hand[index]
             pass_hand = self.player_played(action, card=card)
 
         else:  # hint

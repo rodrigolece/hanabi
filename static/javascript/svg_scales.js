@@ -116,20 +116,30 @@ let dragHandler = d3.drag()
     .on("drag", function () {
         d3.select(this)
             .attr("transform", `translate(${d3.event.x + dx}, ${d3.event.y + dy})`);
-    })
-    .on("end", function () {
+    });
+
+function setUpDragHandlerOnEnd(dragHandler, socket) {
+    dragHandler.on("end", function () {
         let current = d3.select(this);
-        data = current.node().__data__
+        let player_id = current.attr("player");
+        let data = current.node().__data__;
+        let card_id = data.id;
+
         let t = getTranslation(current.attr("transform"));
         let pos = [+current.select("rect").attr("x") + t[0] + 15,  // +15 compensates width of card
                    +current.select("rect").attr("y") + t[1]];
 
         if (d3.polygonContains(coordsPlay, pos)) {
-            console.log(`Play! ${data.colour} - ` + data.number.toString())
+            console.log("Play!")
+            console.log(data.colour + "-" + data.number.toString() + " id: " + data.id)
+            emitPlayed(socket, "play", player_id, card_id)
         } else if (d3.polygonContains(coordsDiscard, pos)) {
-            console.log(`Discard! ${data.colour} - ` + data.number.toString())
+            console.log("Discard!")
+            console.log(data.colour + "-" + data.number.toString() + " id: " + data.id)
+            emitPlayed(socket, "discard", player_id, card_id)
         }
 
         current
             .attr("transform", `translate(${t[0]})`)  // default y = 0
         });
+}

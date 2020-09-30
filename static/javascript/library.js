@@ -115,3 +115,20 @@ function updateHeader(data) {
     $("#clues").text(data.clues);
     $("#remaining").text(data.remaining);
 }
+
+function emitPlayed(socket, action, player_id, card_id) {
+    if (action === "play" || action === "discard") {
+        // var for function scope instead of let
+        var object = {
+            data : {
+                id : player_id,
+                action : action,
+                args : {card_id : card_id}
+            }
+        };
+    } else if (action === "hint") {
+        var object = {};
+    }
+
+    socket.emit('played', object);
+}

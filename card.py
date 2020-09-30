@@ -2,9 +2,10 @@
 
 
 class Card(object):
-    def __init__(self, colour, number):
+    def __init__(self, colour, number, id):
         self.colour = colour
         self.number = number
+        self._id = id
 
         return None
 
@@ -12,4 +13,4 @@ class Card(object):
         return f'Card: {self.colour}-{self.number}'
 
     def serialise(self):
-        return {'colour': self.colour, 'number': self.number}
+        return {'id': self._id, 'colour': self.colour, 'number': self.number}

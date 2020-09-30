@@ -14,8 +14,6 @@ app.config['SECRET_KEY'] = 'secr3t'
 app.config['SESSION_TYPE'] = 'filesystem'  # use session
 socketio = SocketIO(app)
 
-debug_turn = False
-
 
 @app.route('/')
 def board():
@@ -25,26 +23,22 @@ def board():
 @socketio.on('connect')  # namespace='/test'
 def send_board():
     if 'game' not in session:
-        session['game'] = simulated_game()
-        # session['game'] = Hanabi(2)
+        # session['game'] = simulated_game()
+        session['game'] = Hanabi(2)
     emit('board', {'data': session['game'].serialise()})  # json=True
 
 
 @socketio.on('played')
 def parse_play(json):
-    global debug_turn
-    data = json['data']
     game = session['game']
-
+    data = json['data']
     player, action, args = data['id'], data['action'], data['args']
-    if debug_turn and player == game.current_player.index:
+
+    if player == str(game.current_player.index):
         app.logger.info('received json: ' + str(data))
         game.update_table(action, **args)
-    elif debug_turn:
-        send('Not your turn')
     else:
-        app.logger.info('received json: ' + str(data))
-        game.update_table(action, **args)
+        send('Not your turn')
 
 
 # class LoginForm(FlaskForm):
@@ -74,8 +68,6 @@ def parse_play(json):
 # def board(player):
 #     return render_template('board.html', player=player)
 
-
-# https://medium.com/better-programming/building-your-first-website-with-flask-part-3-99df7d589078
 
 if __name__ == '__main__':
     socketio.run(app)

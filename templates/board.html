@@ -21,26 +21,28 @@
                 });
 
                 socket.on("message", function (msg) {
-                    console.log(msg)
+                    alert(msg)
                 })
+                // This takes care of "play" and "discard" actions
+                setUpDragHandlerOnEnd(dragHandler, socket);
 
-                $("button#play").click(function () {
-                    socket.emit('played', {data: {
-                            "id" : 0,
-                            "action" : "play",
-                            "args" : {"card_id" : 0}
-                        }
-                    })
-                });
+                // $("button#play").click(function () {
+                //     socket.emit('played', {data: {
+                //             "id" : 0,
+                //             "action" : "play",
+                //             "args" : {"card_id" : 0}
+                //         }
+                //     })
+                // });
 
-                $("button#discard").click(function () {
-                    socket.emit('played', {data: {
-                            "id" : 0,
-                            "action" : "discard",
-                            "args" : {"card_id" : 2}
-                        }
-                    })
-                });
+                // $("button#discard").click(function () {
+                //     socket.emit('played', {data: {
+                //             "id" : 0,
+                //             "action" : "discard",
+                //             "args" : {"card_id" : 2}
+                //         }
+                //     })
+                // });
 
                 $("button#hint").click(function () {
                     socket.emit('played', {data: {
