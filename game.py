@@ -11,12 +11,11 @@ from table import Table
 
 class Hanabi(object):
 
-    def __init__(self, nb_players, id_game=0, seed=42, verbose=False):
+    def __init__(self, nb_players, seed=42, verbose=False):
         # Below is used in online games
         self._num_connections = 1  # a game is initialised when there is 1 connection
         self._ready = False
         self._finished = None  # used for number of points at the end
-        self._id_game = id_game
 
         self.verbose = verbose
         self.nb_players = nb_players
@@ -203,7 +202,6 @@ class Hanabi(object):
             pass_hand = self.player_played(action,
                                            to_player=to_player,
                                            info=info)
-
         if pass_hand:
             self.next_player()
             self.most_recent_move = [action, card_id, player_id, info]

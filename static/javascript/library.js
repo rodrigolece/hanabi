@@ -19,7 +19,9 @@ function getTranslation(transform) {
 }
 
 function drawHand(player) {
-    let g = svgHands.append("g").attr("id", "player"+player.id);
+    let g = svgHands.append("g")
+        .attr("class", "player")
+        .attr("id", "player"+player.id);
 
     let card = g.selectAll(".card")
         .data(player.hand)
@@ -94,11 +96,18 @@ function drawDiscarded(g, played) {
 }
 
 function drawBoard(data) {
+    // Delete the current cards on the board
+    svgHands.selectAll(".player").remove()  // extra grouping for hands
+    d3.selectAll(".card").remove()
+    d3.selectAll(".card-invisible").remove()
+    // svgUseful.selectAll(".card").remove()
+    // svgUseless.selectAll("*").remove()
+
     // Draw cards
     let players = data.players;
 
     players.forEach(d => drawHand(d));
-    svgHands.select("#player0") // Set the current player as invisible
+    svgHands.select(`#player${player}`) // Set the current player as invisible
         .selectAll(".card")
         .attr("class", "card-invisible");
     dragHandler(svgHands.selectAll(".card-invisible"));

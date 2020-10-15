@@ -20,29 +20,12 @@
                     drawBoard(msg.data);
                 });
 
-                socket.on("message", function (msg) {
+                socket.on("alert", function (msg) {
                     alert(msg)
                 })
+
                 // This takes care of "play" and "discard" actions
                 setUpDragHandlerOnEnd(dragHandler, socket);
-
-                // $("button#play").click(function () {
-                //     socket.emit('played', {data: {
-                //             "id" : 0,
-                //             "action" : "play",
-                //             "args" : {"card_id" : 0}
-                //         }
-                //     })
-                // });
-
-                // $("button#discard").click(function () {
-                //     socket.emit('played', {data: {
-                //             "id" : 0,
-                //             "action" : "discard",
-                //             "args" : {"card_id" : 2}
-                //         }
-                //     })
-                // });
 
                 $("button#hint").click(function () {
                     socket.emit('played', {data: {
@@ -54,13 +37,18 @@
                 });
             });
         </script>
+        <script type="text/javascript">
+            var username = "{{ username }}";
+            var player = {{ player }};
+        </script>
         <script type="text/javascript" src="{{ url_for('static', filename='javascript/library.js') }}" charset="utf-8"></script>
     </head>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
     <body>
         <div class="container">
-            <h4>You are: {{ player }}</h4>
-            <h4>Current turn: <span id="current"></span> Lifes: <span id="lifes"></span>  Clues: <span id="clues"></span> Cards remaining: <span id="remaining"></span></h4>
+            <h4>You are: {{ username }}</h4>
+            <h4>Current turn: <span id="current"></span></h4>
+            <h4>Lifes: <span id="lifes"></span>  Clues: <span id="clues"></span> Cards remaining: <span id="remaining"></span></h4>
             <div id="messages">
                 <p>Player one played a red 1</p>
                 <p>Player two gave a hint</p>
@@ -69,17 +57,17 @@
             <div id="hands"></div>
             <div id="useless"></div>
             <div id="main"></div>
-            <br>
+            <!-- <br>
             <table><tr>
                 <td><button type="button" id="play">Play</button></td>
                 <td><button type="button" id="hint">Hint</button></form></td>
                 <td><button type="button" id="discard">Discard</button></td>
-                <!-- <form id="hint" action="" method="post">
+                <form id="hint" action="" method="post">
                     <td><button type="submit" name="action" value="play">Play</button></td>
                     <td><button type="submit" name="action" value="hint">Hint</button></td>
                     <td><button type="submit" name="action" value="discard">Discard</button></td>
-                </form> -->
-            </tr></table>
+                </form>
+            </tr></table> -->
         </div>
         <script type="text/javascript" src="{{ url_for('static', filename='javascript/svg_scales.js') }}" charset="utf-8"></script>
         <!-- <script type="text/javascript">

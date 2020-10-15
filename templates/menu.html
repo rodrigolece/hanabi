@@ -7,6 +7,10 @@
     </head>
     <body>
         <h1>Hanabi!</h1>
+        {% if username is not none %}
+            <h4>Welcome back {{ username }}</h4>
+            <a href="{{ url_for('delete_session') }}">Logout</a>
+        {% endif %}
         <form action="" method="post">
             <button type="submit" name="action" value="new">Start New Game</button>
             <br>
